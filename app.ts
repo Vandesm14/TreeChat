@@ -9,10 +9,11 @@ export interface Block {
 }
 export interface Pointer {
   name: string;
-  ref: Block['id'] | null;
+  base: Block['id'];
+  tip: Block['id'];
 }
 
-export type Pointers = Map<Pointer['name'], Block['id']>;
+export type Pointers = Map<Pointer['name'], Pointer>;
 export type Blocks = Map<Block['id'], Block>;
 
 /** An object `T` with of without the key `K` */
@@ -67,29 +68,32 @@ export const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
 
   // Pointer functions
   const getPointer = (name: Pointer['name']) => pointers.get(name);
-  const setPointer = (name: Pointer['name'], id: Block['id']) =>
-    pointers.set(name, id);
+  const setPointer = (name: Pointer['name'], tip: Block['id']) => {
+    const pointer = getPointer(name);
+    pointers.set(name, { name, base: pointer?.base ?? tip, tip: tip });
+    return pointer;
+  };
   const removePointer = (name: Pointer['name']) => pointers.delete(name);
 
   const getBlockPointers = (id: Block['id']) =>
-    [...pointers.entries()].filter(([, pointer]) => pointer === id);
+    [...pointers.entries()].filter(([, pointer]) => pointer.tip === id);
   const getBlockAtPointer = (name: Pointer['name']) => {
     const pointer = getPointer(name);
     if (!pointer) return undefined;
-    return get(pointer);
+    return get(pointer.tip);
   };
 
   const addBlockAtPointer = (name: Pointer['name'], data: Block['data']) => {
     const pointer = getPointer(name);
     if (!pointer) throw new Error(`No such pointer "${name}"`);
-    const newBlock = add({ ref: pointer, data });
+    const newBlock = add({ ref: pointer.tip, data });
     setPointer(name, newBlock.id);
     return newBlock;
   };
   const removeBlockAtPointer = (name: Pointer['name']) => {
     const pointer = getPointer(name);
     if (!pointer) throw new Error(`No such pointer "${name}"`);
-    const block = remove(pointer);
+    const block = remove(pointer.tip);
     if (block?.ref) setPointer(name, block.ref);
     else removePointer(name);
     return block;
@@ -125,7 +129,7 @@ export const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
         id: el.id,
         data: el.data,
         pointer: [...pointers.entries()]
-          .filter(([, id]) => id === el.id)
+          .filter(([, id]) => id.tip === el.id)
           .map(([name]) => name),
         ref: el.ref,
       };

@@ -108,7 +108,11 @@ describe('Chain', () => {
         const chain = Chain();
         const block = chain.add({ data: 'Hello', ref: null });
         chain.setPointer('master', block.id);
-        expect(chain.getPointer('master')).toEqual(block.id);
+        expect(chain.getPointer('master')).toEqual({
+          base: block.id,
+          tip: block.id,
+          name: 'master',
+        });
       });
 
       it('should update a pointer', () => {
@@ -116,7 +120,11 @@ describe('Chain', () => {
         const block = chain.add({ data: 'Hello', ref: null });
         chain.setPointer('master', block.id);
         chain.setPointer('master', '456');
-        expect(chain.getPointer('master')).toEqual('456');
+        expect(chain.getPointer('master')).toEqual({
+          base: block.id,
+          tip: '456',
+          name: 'master',
+        });
       });
     });
 
@@ -125,7 +133,11 @@ describe('Chain', () => {
         const chain = Chain();
         const block = chain.add({ data: 'Hello', ref: null });
         chain.setPointer('master', block.id);
-        expect(chain.getPointer('master')).toEqual(block.id);
+        expect(chain.getPointer('master')).toEqual({
+          base: block.id,
+          tip: block.id,
+          name: 'master',
+        });
       });
     });
 
@@ -165,7 +177,11 @@ describe('Chain', () => {
         const block = chain.add({ data: 'Hello', ref: null });
         chain.setPointer('master', block.id);
         const block2 = chain.addBlockAtPointer('master', 'World');
-        expect(chain.getPointer('master')).toEqual(block2.id);
+        expect(chain.getPointer('master')).toEqual({
+          base: block.id,
+          tip: block2.id,
+          name: 'master',
+        });
         expect(chain.getBlockAtPointer('master')).toEqual(block2);
       });
     });
@@ -199,7 +215,11 @@ describe('Chain', () => {
         const block2 = append('World3');
 
         chain.fastForward('master', block2.id);
-        expect(chain.getPointer('master')).toEqual(block2.id);
+        expect(chain.getPointer('master')).toEqual({
+          base: block.id,
+          tip: block2.id,
+          name: 'master',
+        });
       });
 
       it('should fail if the pointer is not part of the same chain', () => {
@@ -221,7 +241,7 @@ describe('Chain', () => {
   it('should generate a tree', () => {
     const chain = Chain();
     const block = chain.add({ data: 'Hello', ref: null });
-    const block2 = chain.add({ data: 'Hello2', ref: null });
+    chain.add({ data: 'Hello2', ref: null });
     const append = chain.append(block.id);
     append('World');
     append('World2');

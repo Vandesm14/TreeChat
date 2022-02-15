@@ -101,7 +101,10 @@ export class Chain<D = string> {
     this.pointers.set(name, { name, base: pointer?.base ?? tip, tip: tip });
     return pointer;
   }
-  addPointer = this.setPointer;
+  addPointer(name: Pointer['name'], base: Block['id'], tip: Block['id']) {
+    this.pointers.set(name, { name, base, tip });
+    return this.getPointer(name);
+  }
   removePointer(name: Pointer['name']) {
     return this.pointers.delete(name);
   }
@@ -205,4 +208,7 @@ export class Chain<D = string> {
 
     return tree;
   }
+  toJSON = () => {
+    return this.toTree();
+  };
 }

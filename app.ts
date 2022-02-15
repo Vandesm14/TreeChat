@@ -2,10 +2,10 @@ const uuid = () =>
   Math.random().toString(36).substring(2, 15) +
   Math.random().toString(36).substring(2, 15);
 
-export interface Block {
+export interface Block<D = string> {
   id: string;
   ref: string | null;
-  data: string | null;
+  data: D | null;
 }
 export interface Pointer {
   name: string;
@@ -14,35 +14,35 @@ export interface Pointer {
 }
 
 export type Pointers = Map<Pointer['name'], Pointer>;
-export type Blocks = Map<Block['id'], Block>;
+export type Blocks<D = string> = Map<Block['id'], Block<D>>;
 
 /** An object `T` with of without the key `K` */
 export type Maybe<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
-export class Chain {
+export class Chain<D = string> {
   pointers: Pointers;
-  blocks: Blocks;
+  blocks: Blocks<D>;
 
-  constructor(init?: { pointers?: Pointers; blocks?: Blocks }) {
+  constructor(init?: { pointers?: Pointers; blocks?: Blocks<D> }) {
     this.pointers = new Map(init?.pointers ?? []);
     this.blocks = new Map(init?.blocks ?? []);
     return this;
   }
 
   // Block functions
-  add(block: Maybe<Omit<Block, 'id'>, 'ref'>) {
+  add(block: Maybe<Omit<Block<D>, 'id'>, 'ref'>) {
     const id = uuid();
     this.blocks.set(id, { ...block, id, ref: block.ref ?? null });
     return { ...block, id };
   }
-  set(id: Block['id'], block: Partial<Block>) {
+  set(id: Block['id'], block: Partial<Block<D>>) {
     this.blocks.set(id, { ...this.blocks.get(id)!, ...block });
     return this.blocks.get(id)!;
   }
   append(ref: Block['id']) {
     let next = ref;
 
-    return (data: Block['data']) => {
+    return (data: D) => {
       const newBlock = this.add({ ref: next, data });
       next = newBlock.id;
       return newBlock;
@@ -116,7 +116,7 @@ export class Chain {
     return this.get(pointer.tip);
   }
 
-  addBlockAtPointer(name: Pointer['name'], data: Block['data']) {
+  addBlockAtPointer(name: Pointer['name'], data: D) {
     const pointer = this.getPointer(name);
     if (!pointer) throw new Error(`No such pointer "${name}"`);
     const newBlock = this.add({ ref: pointer.tip, data });
@@ -158,7 +158,7 @@ export class Chain {
     interface Node {
       id: Block['id'];
       ref: Node[] | null;
-      data: Block['data'];
+      data: D;
       pointer?: Pointer['name'][];
       [key: string]: any;
     }
@@ -185,7 +185,7 @@ export class Chain {
       return children.length ? children : null;
     };
 
-    const addNode = (node: Block) => {
+    const addNode = (node: Block<D>) => {
       const children = getChildren(node.id);
       if (children) {
         // @ts-expect-error

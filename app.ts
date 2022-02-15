@@ -138,7 +138,7 @@ export const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
   const getBlocks = () => [...blocks].map(([, block]) => block);
   const getPointers = () => [...pointers].map(([, pointer]) => pointer);
 
-  const toTree = () => {
+  const toTree = (rootId?: Block['id']) => {
     interface Node {
       id: Block['id'];
       ref: Node[] | null;
@@ -177,7 +177,7 @@ export const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
     };
 
     const tree: Node[] = [];
-    const roots = [...blocks.values()].filter((block) => block.ref === null);
+    const roots = rootId && get(rootId) ? [get(rootId)!] : [...blocks.values()].filter((block) => block.ref === null);
 
     roots.forEach((root) => {
       tree.push(addNode({ ...root }));

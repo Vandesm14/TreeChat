@@ -58,6 +58,29 @@ export const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
     return trail;
   };
 
+  const getReverseTrail = (id: Block['id']) => {
+    // start at the block, then see if any blocks reference it
+    // these are the children of the block
+    //
+    // if there is more than one child, return the trail as is
+    // if there is only one child, add it to the trail and continue
+    // if there is no child, return the trail as is
+
+    if (!blocks.has(id)) return [];
+    const trail = [id];
+    let current = id;
+    while (true) {
+      const block = get(current);
+      if (!block) break;
+      const children = [...blocks.values()].filter((b) => b.ref === block.id);
+      if (children.length === 1) {
+        current = children[0].id;
+        trail.push(current);
+      } else break;
+    }
+    return trail;
+  };
+
   /** Soft-deletes the block by setting all references to the block to `null` */
   const remove = (id: Block['id']) => {
     const target = get(id);
@@ -176,6 +199,7 @@ export const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
     addBlockAtPointer,
     removeBlockAtPointer,
     getTrail,
+    getReverseTrail,
     fastForward,
     remove,
     getBlocks,

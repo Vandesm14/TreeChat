@@ -73,6 +73,30 @@ describe('Chain', () => {
       });
     });
 
+    describe('getReverseTrail', () => {
+      it('should get the reverse trail of a block', () => {
+        const chain = Chain();
+        const block = chain.add({ data: 'Hello', ref: null });
+        const append = chain.append(block.id);
+        const block2 = append('World');
+        const block3 = append('World2');
+        expect(chain.getReverseTrail(block.id)).toEqual([
+          block.id,
+          block2.id,
+          block3.id,
+        ]);
+      });
+      it('should get the reverse trail of a block and stop at a branch', () => {
+        const chain = Chain();
+        const block = chain.add({ data: 'Hello', ref: null });
+        const append = chain.append(block.id);
+        const block2 = append('World');
+        append('World2');
+        chain.add({ data: 'World3', ref: block2.id });
+        expect(chain.getReverseTrail(block.id)).toEqual([block.id, block2.id]);
+      });
+    });
+
     describe('remove', () => {
       it('should remove a block', () => {
         const chain = Chain();

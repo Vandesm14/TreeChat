@@ -19,126 +19,138 @@ export type Blocks = Map<Block['id'], Block>;
 /** An object `T` with of without the key `K` */
 export type Maybe<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
-export const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
-  const pointers: Pointers = new Map(init?.pointers ?? []);
-  const blocks: Blocks = new Map(init?.blocks ?? []);
+export class Chain {
+  pointers: Pointers;
+  blocks: Blocks;
+
+  constructor(init?: { pointers?: Pointers; blocks?: Blocks }) {
+    this.pointers = new Map(init?.pointers ?? []);
+    this.blocks = new Map(init?.blocks ?? []);
+    return this;
+  }
 
   // Block functions
-  const add = (block: Maybe<Omit<Block, 'id'>, 'ref'>) => {
+  add(block: Maybe<Omit<Block, 'id'>, 'ref'>) {
     const id = uuid();
-    blocks.set(id, { ...block, id, ref: block.ref ?? null });
+    this.blocks.set(id, { ...block, id, ref: block.ref ?? null });
     return { ...block, id };
-  };
-  const set = (id: Block['id'], block: Partial<Block>) => {
-    blocks.set(id, { ...blocks.get(id)!, ...block });
-    return blocks.get(id)!;
-  };
-  const append = (ref: Block['id']) => {
+  }
+  set(id: Block['id'], block: Partial<Block>) {
+    this.blocks.set(id, { ...this.blocks.get(id)!, ...block });
+    return this.blocks.get(id)!;
+  }
+  append(ref: Block['id']) {
     let next = ref;
 
     return (data: Block['data']) => {
-      const newBlock = add({ ref: next, data });
+      const newBlock = this.add({ ref: next, data });
       next = newBlock.id;
       return newBlock;
     };
-  };
+  }
 
-  const get = (id: Block['id']) => blocks.get(id);
-  const getTrail = (id: Block['id']) => {
-    if (!blocks.has(id)) return [];
+  get(id: Block['id']) {
+    return this.blocks.get(id);
+  }
+  getTrail(id: Block['id']) {
+    if (!this.blocks.has(id)) return [];
     const trail = [id];
     let current = id;
     while (true) {
-      const block = get(current);
+      const block = this.get(current);
       if (!block?.ref) break;
       current = block.ref;
       if (!current) break;
       trail.unshift(current);
     }
     return trail;
-  };
+  }
 
-  const getReverseTrail = (id: Block['id']) => {
-    // start at the block, then see if any blocks reference it
-    // these are the children of the block
-    //
-    // if there is more than one child, return the trail as is
-    // if there is only one child, add it to the trail and continue
-    // if there is no child, return the trail as is
-
-    if (!blocks.has(id)) return [];
+  getReverseTrail(id: Block['id']) {
+    if (!this.blocks.has(id)) return [];
     const trail = [id];
     let current = id;
     while (true) {
-      const block = get(current);
+      const block = this.get(current);
       if (!block) break;
-      const children = [...blocks.values()].filter((b) => b.ref === block.id);
+      const children = [...this.blocks.values()].filter((b) => b.ref === block.id);
       if (children.length === 1) {
         current = children[0].id;
         trail.push(current);
       } else break;
     }
     return trail;
-  };
+  }
 
   /** Soft-deletes the block by setting all references to the block to `null` */
-  const remove = (id: Block['id']) => {
-    const target = get(id);
+  remove(id: Block['id']) {
+    const target = this.get(id);
     if (!target) return undefined;
-    set(id, { ref: null });
+    this.set(id, { ref: null });
     return target;
-  };
+  }
 
   // Pointer functions
-  const getPointer = (name: Pointer['name']) => pointers.get(name);
-  const setPointer = (name: Pointer['name'], tip: Block['id']) => {
-    const pointer = getPointer(name);
-    pointers.set(name, { name, base: pointer?.base ?? tip, tip: tip });
+  getPointer(name: Pointer['name']) {
+    return this.pointers.get(name);
+  }
+  setPointer(name: Pointer['name'], tip: Block['id']) {
+    const pointer = this.getPointer(name);
+    this.pointers.set(name, { name, base: pointer?.base ?? tip, tip: tip });
     return pointer;
-  };
-  const removePointer = (name: Pointer['name']) => pointers.delete(name);
+  }
+  removePointer(name: Pointer['name']) {
+    return this.pointers.delete(name);
+  }
 
-  const getBlockPointers = (id: Block['id']) =>
-    [...pointers.entries()].filter(([, pointer]) => pointer.tip === id);
-  const getBlockAtPointer = (name: Pointer['name']) => {
-    const pointer = getPointer(name);
+  getBlockPointers(id: Block['id']) {
+    return [...this.pointers.entries()].filter(([, pointer]) => pointer.tip === id);
+  }
+  getBlockAtPointer(name: Pointer['name']) {
+    const pointer = this.getPointer(name);
     if (!pointer) return undefined;
-    return get(pointer.tip);
-  };
+    return this.get(pointer.tip);
+  }
 
-  const addBlockAtPointer = (name: Pointer['name'], data: Block['data']) => {
-    const pointer = getPointer(name);
+  addBlockAtPointer(name: Pointer['name'], data: Block['data']) {
+    const pointer = this.getPointer(name);
     if (!pointer) throw new Error(`No such pointer "${name}"`);
-    const newBlock = add({ ref: pointer.tip, data });
-    setPointer(name, newBlock.id);
+    const newBlock = this.add({ ref: pointer.tip, data });
+    this.setPointer(name, newBlock.id);
     return newBlock;
-  };
-  const removeBlockAtPointer = (name: Pointer['name']) => {
-    const pointer = getPointer(name);
+  }
+  removeBlockAtPointer(name: Pointer['name']) {
+    const pointer = this.getPointer(name);
     if (!pointer) throw new Error(`No such pointer "${name}"`);
-    const block = remove(pointer.tip);
-    if (block?.ref) setPointer(name, block.ref);
-    else removePointer(name);
+    const block = this.remove(pointer.tip);
+    if (block?.ref) this.setPointer(name, block.ref);
+    else this.removePointer(name);
     return block;
-  };
+  }
 
-  const fastForward = (name: Pointer['name']) => {
-    const pointer = getPointer(name);
+  fastForward(name: Pointer['name']) {
+    const pointer = this.getPointer(name);
     if (!pointer) throw new Error(`No such pointer "${name}"`);
-    const block = get(pointer.tip);
+    const block = this.get(pointer.tip);
     if (!block) throw new Error(`No block at pointer "${name}"`);
-    const trail = getReverseTrail(block.id);
+    const trail = this.getReverseTrail(block.id);
     if (!trail.includes(block.id) || trail.length < 2)
-      throw new Error(`Block "${block.id}" is not in the same chain as "${name}"`);
+      throw new Error(
+        `Block "${block.id}" is not in the same chain as "${name}"`
+      );
 
-    setPointer(name, trail[trail.length - 1]);
-  };
+    this.setPointer(name, trail[trail.length - 1]);
+  }
 
   // Other fnctions
-  const getBlocks = () => [...blocks].map(([, block]) => block);
-  const getPointers = () => [...pointers].map(([, pointer]) => pointer);
+  getBlocks() {
+    return [...this.blocks].map(([, block]) => block);
+  }
+  getPointers() {
+    return [...this.pointers].map(([, pointer]) => pointer);
+  }
 
-  const toTree = (rootId?: Block['id']) => {
+  toTree(rootId?: Block['id']) {
     interface Node {
       id: Block['id'];
       ref: Node[] | null;
@@ -151,7 +163,7 @@ export const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
       const obj: Node = {
         id: el.id,
         data: el.data,
-        pointer: [...pointers.entries()]
+        pointer: [...this.pointers.entries()]
           .filter(([, id]) => id.tip === el.id)
           .map(([name]) => name),
         ref: el.ref,
@@ -163,7 +175,7 @@ export const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
     };
 
     const getChildren = (id: Block['id']) => {
-      const children = [...blocks.values()].filter((block) => block.ref === id);
+      const children = [...this.blocks.values()].filter((block) => block.ref === id);
       return children.length ? children : null;
     };
 
@@ -177,33 +189,15 @@ export const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
     };
 
     const tree: Node[] = [];
-    const roots = rootId && get(rootId) ? [get(rootId)!] : [...blocks.values()].filter((block) => block.ref === null);
+    const roots =
+      rootId && this.get(rootId)
+        ? [this.get(rootId)!]
+        : [...this.blocks.values()].filter((block) => block.ref === null);
 
     roots.forEach((root) => {
       tree.push(addNode({ ...root }));
     });
 
     return tree;
-  };
-
-  return {
-    add,
-    set,
-    append,
-    get,
-    getPointer,
-    setPointer,
-    removePointer,
-    getBlockPointers,
-    getBlockAtPointer,
-    addBlockAtPointer,
-    removeBlockAtPointer,
-    getTrail,
-    getReverseTrail,
-    fastForward,
-    remove,
-    getBlocks,
-    getPointers,
-    toTree,
-  };
-};
+  }
+}

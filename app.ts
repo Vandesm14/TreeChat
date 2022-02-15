@@ -135,8 +135,8 @@ export const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
   };
 
   // Other fnctions
-  const getBlocks = () => blocks;
-  const getPointers = () => pointers;
+  const getBlocks = () => [...blocks].map(([, block]) => block);
+  const getPointers = () => [...pointers].map(([, pointer]) => pointer);
 
   const toTree = () => {
     interface Node {

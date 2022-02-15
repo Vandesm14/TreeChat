@@ -122,16 +122,16 @@ export const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
     return block;
   };
 
-  const fastForward = (name: Pointer['name'], id: Block['id']) => {
-    const block = get(id);
-    if (!block) throw new Error(`No such block "${id}"`);
+  const fastForward = (name: Pointer['name']) => {
     const pointer = getPointer(name);
     if (!pointer) throw new Error(`No such pointer "${name}"`);
-    const trail = getTrail(id);
-    if (!trail.includes(id) || trail.length < 2)
-      throw new Error(`Block "${id}" is not in the same chain as "${name}"`);
+    const block = get(pointer.tip);
+    if (!block) throw new Error(`No block at pointer "${name}"`);
+    const trail = getReverseTrail(block.id);
+    if (!trail.includes(block.id) || trail.length < 2)
+      throw new Error(`Block "${block.id}" is not in the same chain as "${name}"`);
 
-    setPointer(name, id);
+    setPointer(name, trail[trail.length - 1]);
   };
 
   // Other fnctions

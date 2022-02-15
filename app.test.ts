@@ -32,8 +32,17 @@ describe('Chain', () => {
       it('should append a block', () => {
         const chain = Chain();
         const block = chain.add({ data: 'Hello', ref: null });
-        const block2 = chain.append(block.id)('World');
+        const trail = [block.id];
+        const append = chain.append(block.id);
+        const block2 = append('World');
+        trail.push(block2.id);
+        trail.push(append('World2').id);
+
+        const block3 = append('World3');
+        trail.push(block3.id);
+
         expect(chain.get(block2.id)).toEqual({ ...block2, ref: block.id });
+        expect(chain.getTrail(block3.id)).toEqual(trail);
       });
     });
 
@@ -205,5 +214,17 @@ describe('Chain', () => {
         );
       });
     });
+  });
+
+  it('should generate a tree', () => {
+    const chain = Chain();
+    const block = chain.add({ data: 'Hello', ref: null });
+    const block2 = chain.add({ data: 'Hello2', ref: null });
+    const append = chain.append(block.id);
+    append('World');
+    append('World2');
+
+    chain.setPointer('master', block.id);
+    console.log(JSON.stringify(chain.toTree(), null, 2));
   });
 });

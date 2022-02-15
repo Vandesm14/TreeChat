@@ -36,10 +36,8 @@ export const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
     let next = ref;
 
     return (data: Block['data']) => {
-      const id = uuid();
-      const newBlock = { id, ref: next, data };
-      blocks.set(id, newBlock);
-      next = id;
+      const newBlock = add({ ref: next, data });
+      next = newBlock.id;
       return newBlock;
     };
   };

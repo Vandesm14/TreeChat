@@ -60,11 +60,7 @@ export const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
   /** Soft-deletes the block by setting all references to the block to `null` */
   const remove = (id: Block['id']) => {
     const target = get(id);
-    const children = [...blocks.values()].filter((block) => block.ref === id);
-    if (!children || !target) return;
-    children.forEach((child) => {
-      set(child.id, { ref: target.ref ?? null });
-    });
+    if (!target) return undefined;
     set(id, { ref: null });
     return target;
   };

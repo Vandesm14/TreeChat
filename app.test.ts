@@ -85,17 +85,19 @@ describe('Chain', () => {
         expect(chain.get(block2.id)).toEqual({ ...block2, ref: null });
       });
 
-      it('should remove all children of a block', () => {
+      it('should remove the block but keep the children', () => {
         const chain = Chain();
         const block = chain.add({ data: 'Hello', ref: null });
         const block2 = chain.add({ data: 'World', ref: block.id });
         const block3 = chain.add({ data: 'World2', ref: block.id });
+        const block4 = chain.add({ data: 'World3', ref: block2.id });
 
         chain.remove(block.id);
 
-        expect(chain.get(block.id)).toEqual(block);
-        expect(chain.get(block2.id)).toEqual({ ...block2, ref: null });
-        expect(chain.get(block3.id)).toEqual({ ...block3, ref: null });
+        expect(chain.get(block.id)).toEqual({ ...block, ref: null });
+        expect(chain.get(block2.id)).toEqual(block2);
+        expect(chain.get(block3.id)).toEqual(block3);
+        expect(chain.get(block4.id)).toEqual(block4);
       });
     });
   });

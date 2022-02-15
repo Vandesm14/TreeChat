@@ -28,6 +28,10 @@ const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
     blocks.set(id, { ...block, id });
     return { ...block, id };
   };
+  const set = (id: Block['id'], block: Partial<Block>) => {
+    blocks.set(id, { ...blocks.get(id)!, ...block });
+    return blocks.get(id)!;
+  };
   const append = (ref: Block['id']) => {
     let next = ref;
 
@@ -56,14 +60,13 @@ const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
 
   /** Soft-deletes the block by setting all references to the block to `null` */
   const remove = (id: Block['id']) => {
-    const trail = getTrail(id);
-    trail.forEach((blockId) => {
-      const block = get(blockId);
-      if (!block) return;
-      if (block.ref === id) {
-        blocks.set(blockId, { ...block, ref: null });
-      }
+    const target = get(id);
+    const children = [...blocks.values()].filter((block) => block.ref === id);
+    if (!children || !target) return;
+    children.forEach((child) => {
+      set(child.id, { ref: target.ref ?? null });
     });
+    set(id, { ref: null });
   };
 
   // Pointer functions
@@ -186,6 +189,6 @@ const second2 = appendFirst('second2');
 
 console.log(JSON.stringify(chain.toTree(), null, 2));
 
-chain.remove(second2.id);
+chain.remove(first.id);
 
 console.log(JSON.stringify(chain.toTree(), null, 2));

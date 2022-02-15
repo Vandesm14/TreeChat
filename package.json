@@ -3,9 +3,17 @@
   "version": "1.0.0",
   "description": "",
   "keywords": [],
+  "homepage": "https://github.com/Vandesm14/TreeChat#readme",
+  "bugs": {
+    "url": "https://github.com/Vandesm14/TreeChat/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vandesm14/TreeChat.git"
+  },
   "license": "MIT",
-  "author": "",
-  "main": "index.js",
+  "author": "vandesm14",
+  "main": "app.ts",
   "scripts": {
     "start": "ts-node-dev --respawn app.ts",
     "test": "jest --watch"

@@ -2,30 +2,30 @@ const uuid = () =>
   Math.random().toString(36).substring(2, 15) +
   Math.random().toString(36).substring(2, 15);
 
-interface Block {
+export interface Block {
   id: string;
   ref: string | null;
   data: string | null;
 }
-interface Pointer {
+export interface Pointer {
   name: string;
   ref: Block['id'] | null;
 }
 
-type Pointers = Map<Pointer['name'], Block['id']>;
-type Blocks = Map<Block['id'], Block>;
+export type Pointers = Map<Pointer['name'], Block['id']>;
+export type Blocks = Map<Block['id'], Block>;
 
 /** An object `T` with of without the key `K` */
-type Maybe<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+export type Maybe<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
-const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
+export const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
   const pointers: Pointers = new Map(init?.pointers ?? []);
   const blocks: Blocks = new Map(init?.blocks ?? []);
 
   // Block functions
-  const add = (block: Omit<Block, 'id'>) => {
+  const add = (block: Maybe<Omit<Block, 'id'>, 'ref'>) => {
     const id = uuid();
-    blocks.set(id, { ...block, id });
+    blocks.set(id, { ...block, id, ref: block.ref ?? null });
     return { ...block, id };
   };
   const set = (id: Block['id'], block: Partial<Block>) => {
@@ -46,6 +46,7 @@ const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
 
   const get = (id: Block['id']) => blocks.get(id);
   const getTrail = (id: Block['id']) => {
+    if (!blocks.has(id)) return [];
     const trail = [id];
     let current = id;
     while (true) {
@@ -67,36 +68,49 @@ const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
       set(child.id, { ref: target.ref ?? null });
     });
     set(id, { ref: null });
+    return target;
   };
 
   // Pointer functions
   const getPointer = (name: Pointer['name']) => pointers.get(name);
   const setPointer = (name: Pointer['name'], id: Block['id']) =>
     pointers.set(name, id);
+  const removePointer = (name: Pointer['name']) => pointers.delete(name);
 
+  const getBlockPointers = (id: Block['id']) =>
+    [...pointers.entries()].filter(([, pointer]) => pointer === id);
   const getBlockAtPointer = (name: Pointer['name']) => {
     const pointer = getPointer(name);
-    if (!pointer) return null;
+    if (!pointer) return undefined;
     return get(pointer);
   };
 
-  const addBlockAtPointer = (name: string, block: Omit<Block, 'ref'>) => {
+  const addBlockAtPointer = (name: Pointer['name'], data: Block['data']) => {
     const pointer = getPointer(name);
     if (!pointer) throw new Error(`No such pointer "${name}"`);
-    const newBlock = { ...block, ref: pointer };
-    add(newBlock);
+    const newBlock = add({ ref: pointer, data });
     setPointer(name, newBlock.id);
     return newBlock;
+  };
+  const removeBlockAtPointer = (name: Pointer['name']) => {
+    const pointer = getPointer(name);
+    if (!pointer) throw new Error(`No such pointer "${name}"`);
+    const block = remove(pointer);
+    if (block?.ref) setPointer(name, block.ref);
+    else removePointer(name);
+    return block;
   };
 
   const fastForward = (name: Pointer['name'], id: Block['id']) => {
     const block = get(id);
     if (!block) throw new Error(`No such block "${id}"`);
-    const trail = getTrail(block.id);
-    if (!trail.includes(block.id))
-      throw new Error(`Block "${id}" is not part of the "${name}`);
+    const pointer = getPointer(name);
+    if (!pointer) throw new Error(`No such pointer "${name}"`);
+    const trail = getTrail(id);
+    if (!trail.includes(id) || trail.length < 2)
+      throw new Error(`Block "${id}" is not in the same chain as "${name}"`);
 
-    setPointer(name, block.id);
+    setPointer(name, id);
   };
 
   // Other fnctions
@@ -153,12 +167,16 @@ const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
 
   return {
     add,
+    set,
     append,
     get,
     getPointer,
     setPointer,
+    removePointer,
+    getBlockPointers,
     getBlockAtPointer,
     addBlockAtPointer,
+    removeBlockAtPointer,
     getTrail,
     fastForward,
     remove,
@@ -167,28 +185,3 @@ const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
     toTree,
   };
 };
-
-const chain = Chain();
-
-const block = chain.add({
-  ref: null,
-  data: 'root',
-});
-
-chain.setPointer('main', block.id);
-chain.setPointer('other', block.id);
-
-const append = chain.append(block.id);
-
-const first = append('first');
-chain.fastForward('main', append('second').id);
-append('third');
-
-const appendFirst = chain.append(first.id);
-const second2 = appendFirst('second2');
-
-console.log(JSON.stringify(chain.toTree(), null, 2));
-
-chain.remove(first.id);
-
-console.log(JSON.stringify(chain.toTree(), null, 2));

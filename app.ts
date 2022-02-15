@@ -73,7 +73,9 @@ export class Chain {
     while (true) {
       const block = this.get(current);
       if (!block) break;
-      const children = [...this.blocks.values()].filter((b) => b.ref === block.id);
+      const children = [...this.blocks.values()].filter(
+        (b) => b.ref === block.id
+      );
       if (children.length === 1) {
         current = children[0].id;
         trail.push(current);
@@ -104,7 +106,9 @@ export class Chain {
   }
 
   getBlockPointers(id: Block['id']) {
-    return [...this.pointers.entries()].filter(([, pointer]) => pointer.tip === id);
+    return [...this.pointers.entries()].filter(
+      ([, pointer]) => pointer.tip === id
+    );
   }
   getBlockAtPointer(name: Pointer['name']) {
     const pointer = this.getPointer(name);
@@ -175,7 +179,9 @@ export class Chain {
     };
 
     const getChildren = (id: Block['id']) => {
-      const children = [...this.blocks.values()].filter((block) => block.ref === id);
+      const children = [...this.blocks.values()].filter(
+        (block) => block.ref === id
+      );
       return children.length ? children : null;
     };
 

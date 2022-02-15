@@ -277,7 +277,7 @@ describe('Chain', () => {
     append('block4');
 
     chain.setPointer('master', block.id);
-    const tree = JSON.stringify(chain.toTree(), null, 2)
+    const tree = JSON.stringify(chain.toTree(), null, 2);
     // console.log(tree);
   });
 });

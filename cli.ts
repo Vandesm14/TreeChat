@@ -1,38 +1,36 @@
-import { promptCLLoop } from 'readline-sync';
-import { Chain } from './app';
+import * as inquirer from "inquirer";
+import { Chain } from "./app";
 
-const chain = Chain();
-let branch: string = 'master';
+const chain = new Chain();
+const root = chain.add({ data: "_", ref: null });
+let branch = "master";
 
-const root = chain.add({ data: '_', ref: null });
-chain.setPointer('master', root.id);
+chain.setPointer(branch, root.id);
 
-const render = () => {
-  const pointer = chain.getPointer(branch);
-  if (!pointer) return '[]';
-  return JSON.stringify(chain.toTree(pointer.base), null, 2);
+function ask() {
+  inquirer
+    .prompt([{ type: "input", name: "line", message: "> " }])
+    .then(({ line }: { line: string }) => {
+      const command = line.split(/ +/, 1)[0].toLowerCase();
+      const rest = line.substring(command.length).trim();
+
+      switch(command) {
+        case "log":
+          const ptr = chain.getPointer(branch);
+          if (!ptr) console.log("<EMPTY>");
+          else console.log(JSON.stringify(chain, null, 2));
+          break;
+
+        case "clear":
+          console.clear();
+          break;
+
+        case "exit":
+          return;
+      }
+
+      ask();
+    });
 }
 
-promptCLLoop({
-  branch: (name: string) => {
-    const block = chain.getBlockAtPointer(branch);
-    if (!block) throw new Error(`No block at pointer "${branch}"`);
-    chain.setPointer(name, block.id);
-    branch = name;
-    console.log(render());
-  },
-  switch: (name: string) => {
-    branch = name;
-    console.log(render());
-  },
-  pwd: () => {
-    console.log(branch);
-  },
-  add: (...data: string[]) => {
-    chain.addBlockAtPointer(branch, data.join(' '));
-    console.log(render());
-  },
-  log: () => {
-    console.log(render());
-  },
-});
+ask();

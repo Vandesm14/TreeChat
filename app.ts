@@ -113,14 +113,16 @@ const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
       const obj: Node = {
         id: el.id,
         data: el.data,
-        pointer: [...pointers.entries()].filter(([, id]) => id === el.id).map(([name]) => name),
+        pointer: [...pointers.entries()]
+          .filter(([, id]) => id === el.id)
+          .map(([name]) => name),
         ref: el.ref,
       };
       Object.keys(obj).forEach((key) => {
         if (!obj[key] || !obj[key]?.length) delete obj[key];
       });
       return obj;
-    }
+    };
 
     const getChildren = (id: Block['id']) => {
       const children = [...blocks.values()].filter((block) => block.ref === id);
@@ -131,7 +133,7 @@ const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
       const children = getChildren(node.id);
       if (children) {
         // @ts-expect-error
-        node.ref = children.map((el) => addNode(el));
+        node.ref = children.map((el) => addNode({ ...el }));
       }
       return _format(node as Node);
     };
@@ -140,7 +142,7 @@ const Chain = (init?: { pointers?: Pointers; blocks?: Blocks }) => {
     const roots = [...blocks.values()].filter((block) => block.ref === null);
 
     roots.forEach((root) => {
-      tree.push(addNode(root));
+      tree.push(addNode({ ...root }));
     });
 
     return tree;
@@ -180,10 +182,10 @@ chain.fastForward('main', append('second').id);
 append('third');
 
 const appendFirst = chain.append(first.id);
-appendFirst('second2');
+const second2 = appendFirst('second2');
 
 console.log(JSON.stringify(chain.toTree(), null, 2));
 
-chain.remove(first.id);
+chain.remove(second2.id);
 
 console.log(JSON.stringify(chain.toTree(), null, 2));

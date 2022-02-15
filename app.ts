@@ -52,6 +52,15 @@ export class Chain<D = string> {
   get(id: Block['id']) {
     return this.blocks.get(id);
   }
+
+  /** Soft-deletes the block by setting all references to the block to `null` */
+  remove(id: Block['id']) {
+    const target = this.get(id);
+    if (!target) return undefined;
+    this.set(id, { ref: null });
+    return target;
+  }
+
   getTrail(id: Block['id']) {
     if (!this.blocks.has(id)) return [];
     const trail = [id];
@@ -65,7 +74,6 @@ export class Chain<D = string> {
     }
     return trail;
   }
-
   getReverseTrail(id: Block['id']) {
     if (!this.blocks.has(id)) return [];
     const trail = [id];
@@ -84,14 +92,6 @@ export class Chain<D = string> {
     return trail;
   }
 
-  /** Soft-deletes the block by setting all references to the block to `null` */
-  remove(id: Block['id']) {
-    const target = this.get(id);
-    if (!target) return undefined;
-    this.set(id, { ref: null });
-    return target;
-  }
-
   // Pointer functions
   getPointer(name: Pointer['name']) {
     return this.pointers.get(name);
@@ -101,6 +101,7 @@ export class Chain<D = string> {
     this.pointers.set(name, { name, base: pointer?.base ?? tip, tip: tip });
     return pointer;
   }
+  addPointer = this.setPointer;
   removePointer(name: Pointer['name']) {
     return this.pointers.delete(name);
   }
@@ -177,14 +178,12 @@ export class Chain<D = string> {
       });
       return obj;
     };
-
     const getChildren = (id: Block['id']) => {
       const children = [...this.blocks.values()].filter(
         (block) => block.ref === id
       );
       return children.length ? children : null;
     };
-
     const addNode = (node: Block<D>) => {
       const children = getChildren(node.id);
       if (children) {

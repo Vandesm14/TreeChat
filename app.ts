@@ -22,10 +22,12 @@ export type Maybe<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export class Chain<D = string> {
   pointers: Pointers;
   blocks: Blocks<D>;
+  mainPointer: Pointer['name'];
 
-  constructor(init?: { pointers?: Pointers; blocks?: Blocks<D> }) {
+  constructor(init?: { pointers?: Pointers; blocks?: Blocks<D>; mainPointer?: Pointer['name'] }) {
     this.pointers = new Map(init?.pointers ?? []);
     this.blocks = new Map(init?.blocks ?? []);
+    this.mainPointer = init?.mainPointer ?? 'main';
     return this;
   }
 
@@ -101,12 +103,22 @@ export class Chain<D = string> {
     this.pointers.set(name, { name, base: pointer?.base ?? tip, tip: tip });
     return pointer;
   }
-  addPointer(name: Pointer['name'], base: Block['id'], tip: Block['id']) {
-    this.pointers.set(name, { name, base, tip });
+  addPointer(name: Pointer['name'], base: Block['id'], tip?: Block['id']) {
+    if (this.pointers.has(name)) throw new Error(`Pointer "${name}" already exists`);
+    this.pointers.set(name, { name, base, tip: tip ?? base });
     return this.getPointer(name);
   }
   removePointer(name: Pointer['name']) {
     return this.pointers.delete(name);
+  }
+
+  getMainPointer() {
+    return this.getPointer(this.mainPointer);
+  }
+  setMainPointer(name: Pointer['name']) {
+    if (!this.pointers.has(name)) throw new Error(`No such pointer "${name}"`);
+    this.mainPointer = name;
+    return this.getPointer(name);
   }
 
   getBlockPointers(id: Block['id']) {

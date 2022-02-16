@@ -1,6 +1,4 @@
-const uuid = () =>
-  Math.random().toString(36).substring(2, 15) +
-  Math.random().toString(36).substring(2, 15);
+import { v4 as uuid } from 'uuid';
 
 export interface Block<D = string> {
   id: string;
@@ -60,6 +58,9 @@ export class Chain<D = string> {
   get(id: Block['id']): Block<D> | undefined {
     return this.blocks.get(id);
   }
+  has(id: Block['id']): boolean {
+    return this.blocks.has(id);
+  }
 
   /** Soft-deletes the block by setting all references to the block to `null` */
   remove(id: Block['id']): Block<D> | undefined {
@@ -70,7 +71,7 @@ export class Chain<D = string> {
   }
 
   getTrail(id: Block['id']): Block['id'][] {
-    if (!this.blocks.has(id)) return [];
+    if (!this.has(id)) return [];
     const trail = [id];
     let current = id;
     while (true) {
@@ -82,7 +83,7 @@ export class Chain<D = string> {
     return trail;
   }
   getReverseTrail(id: Block['id']): Block['id'][] {
-    if (!this.blocks.has(id)) return [];
+    if (!this.has(id)) return [];
     const trail = [id];
     let current = id;
     while (true) {

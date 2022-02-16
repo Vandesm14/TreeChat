@@ -66,7 +66,7 @@ export class Client {
     return this;
   }
 
-  newChannel(name: string) {
+  newChannel(name: string): Pointer {
     const action = this.chain.addBlockAtPointer(this.channel, {
       type: ActionType.NULL,
       timestamp: Date.now(),
@@ -76,7 +76,7 @@ export class Client {
     return pointer;
   }
 
-  newReply(text: string, message: Block['id']) {
+  newReply(text: string, message: Block['id']): Block<Payload> {
     const block = this.chain.get(message);
     if (!block) throw new Error('Message does not exist');
     const newBlock = this.chain.add({
@@ -87,11 +87,12 @@ export class Client {
         timestamp: Date.now(),
       },
     });
+    if (!newBlock) throw new Error('Failed to add new block');
     this.chain.fastForward(this.channel);
     return newBlock;
   }
 
-  newMessage(text: string) {
+  newMessage(text: string): Block<Payload> {
     try {
       const block = this.chain.addBlockAtPointer(this.channel, {
         user: 'me',

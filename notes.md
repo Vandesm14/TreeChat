@@ -25,6 +25,12 @@
   - [ ] User (deleted by)
   - [ ] Text (unix timestamp of deletion)
 
+# OT Edge-Cases
+## Sending a message at the same time
+- Both messages will have the previous message as their parent, causing a divergence
+- Our platform requires to explicitly create a new pointer/branch when diverging
+- Because of this, we can check if a branch was created and if not, use the timestamps to determine how to reorder the messages
+
 # How We...
 ## Send a message
 - (the system will add a `message` on top of the `current` `branch` and set the tip of the `branch` to the new `message`)

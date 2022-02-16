@@ -156,7 +156,9 @@ describe('Chain', () => {
         const block = chain.add({ data: 'block', ref: null });
         const block2 = chain.add({ data: 'block2', ref: block.id });
         chain.addPointer('master', block2.id);
-        expect(() => chain.addPointer('master', block2.id)).toThrow('Pointer "master" already exists');
+        expect(() => chain.addPointer('master', block2.id)).toThrow(
+          'Pointer "master" already exists'
+        );
       });
     });
 

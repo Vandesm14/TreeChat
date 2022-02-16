@@ -104,7 +104,11 @@ export class Chain<D = string> {
   getPointer(name: Pointer['name']): Pointer | undefined {
     return this.pointers.get(name);
   }
-  setPointer(name: Pointer['name'], tip: Block['id'], base?: Block['id']): Pointer {
+  setPointer(
+    name: Pointer['name'],
+    tip: Block['id'],
+    base?: Block['id']
+  ): Pointer {
     const pointer = this.getPointer(name);
     if (!pointer) throw new Error(`No such pointer "${name}"`);
     this.pointers.set(name, { name, base: base ?? pointer?.base ?? tip, tip });

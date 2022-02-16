@@ -25,17 +25,20 @@
   - [ ] User (deleted by)
   - [ ] Text (unix timestamp of deletion)
 
-# Other Platforms
-## Discord
-- Messages
-- Replies (anonymous threads; tied to a message; only one message)
-- Named Threads (tied to a message)
-- Channels (can use the "channel" implementation as listed in the [Client](#Client) section)
+# How We...
+## Send a message
+- (the system will add a `message` on top of the `current` `branch` and set the tip of the `branch` to the new `message`)
 
-## Slack
-- Messages
-- Threads (anonymous threads; tied to a message; many messages)
-- Channels (can use the "channel" implementation as listed in the [Client](#Client) section)
+## Create a channel
+- Create a new `branch`
+- Create a `BranchMessage` on top of the `current` `branch`
+- Set the `base` and `tip` of the `branch` to the `BranchMessage`
+- Set the `goTo` property to the name of the channel (eg: "#general"; channels start with "3")
+- Switch the `current` `branch` to the new `branch`
 
-## Reddit
-- Comments (can be nested or not)
+## Branch off of a message
+- Create a new `branch` on any `message`
+- Switch the `current` `branch` to the new `branch`
+- This creates a divergence from the main (previous) `branch`
+  - Any `messages` sent by you will be sent to the new `branch`
+  - Any `messages` sent by others will be sent to the previous `branch`

@@ -1,6 +1,4 @@
-// eslint-env jest
-
-import { Chain } from './app';
+import { Chain } from './tree';
 
 const debug = (chain: Chain) => JSON.stringify(chain.toTree(), null, 2);
 

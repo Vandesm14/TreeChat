@@ -1,4 +1,4 @@
-import { Block, Chain, Pointer } from './app';
+import { Block, Chain, Pointer } from './tree';
 
 interface Message {
   user: string;

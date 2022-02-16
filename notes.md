@@ -1,0 +1,14 @@
+# Client
+- [ ] View all threads (sort by recent and created)
+- [ ] View most recent messages for a thread
+- [ ] Lazy load messages
+- [ ] Send messages in a thread
+- [ ] Branch off of a message (create a thread)
+  - [ ] Threads must have a name
+  - [ ] Branch off of a null message (create a thread without a parent message)
+- [ ] Delete message (turns into a tombstone)
+- [ ] Edit message
+- [ ] Mentions
+  - [ ] User
+  - [ ] Thread
+  - [ ] Message

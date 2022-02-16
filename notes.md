@@ -24,3 +24,18 @@
 - [ ] Deleted (for turning a message into a tombstone)
   - [ ] User (deleted by)
   - [ ] Text (unix timestamp of deletion)
+
+# Other Platforms
+## Discord
+- Messages
+- Replies (anonymous threads; tied to a message; only one message)
+- Named Threads (tied to a message)
+- Channels (can use the "channel" implementation as listed in the [Client](#Client) section)
+
+## Slack
+- Messages
+- Threads (anonymous threads; tied to a message; many messages)
+- Channels (can use the "channel" implementation as listed in the [Client](#Client) section)
+
+## Reddit
+- Comments (can be nested or not)

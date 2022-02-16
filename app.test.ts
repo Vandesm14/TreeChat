@@ -129,22 +129,25 @@ describe('Chain', () => {
   });
 
   describe('Pointer functions', () => {
-    describe('setPointer', () => {
-      it('should set a pointer', () => {
+    describe('addPointer', () => {
+      it('should add a pointer', () => {
         const chain = new Chain();
         const block = chain.add({ data: 'block', ref: null });
-        chain.setPointer('master', block.id);
+        const block2 = chain.add({ data: 'block2', ref: block.id });
+        const pointer = chain.addPointer('master', block2.id);
         expect(chain.getPointer('master')).toEqual({
-          base: block.id,
-          tip: block.id,
+          base: block2.id,
+          tip: block2.id,
           name: 'master',
         });
       });
+    });
 
+    describe('setPointer', () => {
       it('should update a pointer', () => {
         const chain = new Chain();
         const block = chain.add({ data: 'block', ref: null });
-        chain.setPointer('master', block.id);
+        chain.addPointer('master', block.id);
         chain.setPointer('master', '456');
         expect(chain.getPointer('master')).toEqual({
           base: block.id,
@@ -152,13 +155,21 @@ describe('Chain', () => {
           name: 'master',
         });
       });
+
+      it('should fail if pointer does not exist', () => {
+        const chain = new Chain();
+        const block = chain.add({ data: 'block', ref: null });
+        expect(() => chain.setPointer('master', block.id)).toThrow(
+          'No such pointer "master"'
+        );
+      });
     });
 
     describe('getPointer', () => {
       it('should get a pointer', () => {
         const chain = new Chain();
         const block = chain.add({ data: 'block', ref: null });
-        chain.setPointer('master', block.id);
+        chain.addPointer('master', block.id);
         expect(chain.getPointer('master')).toEqual({
           base: block.id,
           tip: block.id,
@@ -171,7 +182,7 @@ describe('Chain', () => {
       it('should remove a pointer', () => {
         const chain = new Chain();
         const block = chain.add({ data: 'block', ref: null });
-        chain.setPointer('master', block.id);
+        chain.addPointer('master', block.id);
         chain.removePointer('master');
         expect(chain.getPointer('master')).toBeUndefined();
       });
@@ -181,7 +192,7 @@ describe('Chain', () => {
       it('should get a block at a pointer', () => {
         const chain = new Chain();
         const block = chain.add({ data: 'block', ref: null });
-        chain.setPointer('master', block.id);
+        chain.addPointer('master', block.id);
         expect(chain.getBlockAtPointer('master')).toEqual(block);
       });
 
@@ -192,7 +203,7 @@ describe('Chain', () => {
 
       it('should return undefined if the block does not exist', () => {
         const chain = new Chain();
-        chain.setPointer('master', '456');
+        chain.addPointer('master', '456');
         expect(chain.getBlockAtPointer('master')).toBeUndefined();
       });
     });
@@ -201,7 +212,7 @@ describe('Chain', () => {
       it('should add a block at a pointer', () => {
         const chain = new Chain();
         const block = chain.add({ data: 'block', ref: null });
-        chain.setPointer('master', block.id);
+        chain.addPointer('master', block.id);
         const block2 = chain.addBlockAtPointer('master', 'block2');
         expect(chain.getPointer('master')).toEqual({
           base: block.id,
@@ -216,7 +227,7 @@ describe('Chain', () => {
       it('should remove a block at a pointer', () => {
         const chain = new Chain();
         const block = chain.add({ data: 'block', ref: null });
-        chain.setPointer('master', block.id);
+        chain.addPointer('master', block.id);
         chain.removeBlockAtPointer('master');
         expect(chain.getPointer('master')).toBeUndefined();
       });
@@ -224,7 +235,7 @@ describe('Chain', () => {
       it('should remove a pointer if the block does not have a parent', () => {
         const chain = new Chain();
         const block = chain.add({ data: 'block', ref: null });
-        chain.setPointer('master', block.id);
+        chain.addPointer('master', block.id);
         chain.removeBlockAtPointer('master');
         expect(chain.getPointer('master')).toBeUndefined();
       });
@@ -235,7 +246,7 @@ describe('Chain', () => {
         const chain = new Chain();
         const block = chain.add({ data: 'block', ref: null });
         const append = chain.append(block.id);
-        chain.setPointer('master', block.id);
+        chain.addPointer('master', block.id);
         append('block2');
         append('block3');
         const block4 = append('block4');
@@ -252,7 +263,7 @@ describe('Chain', () => {
         const chain = new Chain();
         const block = chain.add({ data: 'block', ref: null });
         const append = chain.append(block.id);
-        chain.setPointer('master', block.id);
+        chain.addPointer('master', block.id);
         append('block2');
         const block3 = append('block3');
         chain.add({ data: 'block4', ref: block3.id });
@@ -276,7 +287,7 @@ describe('Chain', () => {
     append('block3');
     append('block4');
 
-    chain.setPointer('master', block.id);
+    chain.addPointer('master', block.id);
     const tree = JSON.stringify(chain.toTree(), null, 2);
     // console.log(tree);
   });

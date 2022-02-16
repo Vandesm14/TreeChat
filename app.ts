@@ -1,92 +1,122 @@
-import * as inquirer from 'inquirer';
-import { Client } from './client';
+// import { Graph, Node, GraphView } from './src/graph';
+// import { v4 } from 'uuid';
 
-const client = new Client();
+// const graph = new Graph<string, string>();
 
-function cks(str: string, cks: string[]) {
-  return cks.find((c) => c === str) !== undefined;
-}
+// const root = v4();
+// const msg1 = v4();
+// const msg2 = v4();
+// const msg3 = v4();
 
-function commands(
-  line: string,
-  commands: [string[], (args: string[]) => void][]
-) {
-  const args = line.split(/ +/);
-  const command = args.shift()?.toLowerCase();
+// console.log('INSERT:', graph.insert(root, new Node('ROOT')));
+// console.log('INSERT:', graph.insert(msg1, new Node('hi shane!', root)));
+// console.log('INSERT:', graph.insert(msg2, new Node("hey, what's up?", msg1)));
+// console.log('CREATE:', graph.create(msg3, new Node('whoop whoop', msg1)));
 
-  if (command) {
-    for (const [coms, fn] of commands) {
-      if (cks(command, coms)) {
-        fn(args);
-        break;
-      }
-    }
-  } else {
-    console.error(`ERROR: invalid command`);
-  }
-}
+// console.log('CREATE:', graph.create(msg1, new Node('hi shane!', root)));
 
-function channel(args: string[]) {
-  const option = args.shift()?.toLowerCase();
+// console.log('HAS:', graph.has(msg1));
+// console.log('GET:', graph.get(msg1));
 
-  if (option) {
-    if (cks(option, ['new', 'n'])) {
-      const channelName = checkChannel(args);
-      if (!channelName) return;
+// // console.log(graph.nodes());
 
-      try {
-        client.newChannel(channelName);
-        console.log(`Created channel: "${channelName}"`);
-      } catch {
-        console.error(
-          `ERROR: a channel with name "${channelName}" already exists`
-        );
-      }
-    } else if (cks(option, ['list', 'l'])) {
-      console.log(`Current channel: "${client.channel}"`);
-    } else if (cks(option, ['switch', 's'])) {
-      const channelName = checkChannel(args);
-      if (!channelName) return;
+// const view = new GraphView(graph);
 
-      try {
-        client.newChannel(channelName);
-        console.error(`ERROR: no channel with name "${channelName}" exists`);
-      } catch {
-        client.channel = channelName;
-        console.log(`Switched to channel: "${channelName}"`);
-      }
-    }
-  } // else {}
-}
+// console.log('PARENT:', view.parent(msg3));
 
-function checkChannel(args: string[]): string | undefined {
-  const name = args.shift();
+// for (const node of view.from(msg3)) {
+//   console.log('NODE:', node);
+// }
 
-  if (name === undefined) {
-    console.error(`ERROR: no channel name provided`);
-  } else if (args.shift() !== undefined) {
-    console.error(
-      `ERROR: a channel name cannot have a space (" ") in the name`
-    );
-  } else {
-    return name;
-  }
+// // import * as inquirer from 'inquirer';
+// // import { Client } from './src/client';
 
-  return;
-}
+// // const client = new Client();
 
-function ask() {
-  inquirer
-    .prompt([{ type: 'input', name: 'line', message: '> ' }])
-    .then(({ line }: { line: string }) => {
-      commands(line, [
-        [['exit'], () => process.exit(0)],
-        [['clear'], console.clear],
-        [['channel', 'c'], channel],
-        // [["message", "m"], () => {}],
-        // [["reply", "r"], () => {}],
-      ]);
-      ask();
-    });
-}
-ask();
+// // function cks(str: string, cks: string[]) {
+// //   return cks.find((c) => c === str) !== undefined;
+// // }
+
+// // function commands(
+// //   line: string,
+// //   commands: [string[], (args: string[]) => void][]
+// // ) {
+// //   const args = line.split(/ +/);
+// //   const command = args.shift()?.toLowerCase();
+
+// //   if (command) {
+// //     for (const [coms, fn] of commands) {
+// //       if (cks(command, coms)) {
+// //         fn(args);
+// //         break;
+// //       }
+// //     }
+// //   } else {
+// //     console.error(`ERROR: invalid command`);
+// //   }
+// // }
+
+// // function channel(args: string[]) {
+// //   const option = args.shift()?.toLowerCase();
+
+// //   if (option) {
+// //     if (cks(option, ['new', 'n'])) {
+// //       const channelName = checkChannel(args);
+// //       if (!channelName) return;
+
+// //       try {
+// //         client.newChannel(channelName);
+// //         console.log(`Created channel: "${channelName}"`);
+// //       } catch {
+// //         console.error(
+// //           `ERROR: a channel with name "${channelName}" already exists`
+// //         );
+// //       }
+// //     } else if (cks(option, ['list', 'l'])) {
+// //       console.log(`Current channel: "${client.channel}"`);
+// //     } else if (cks(option, ['switch', 's'])) {
+// //       const channelName = checkChannel(args);
+// //       if (!channelName) return;
+
+// //       try {
+// //         client.newChannel(channelName);
+// //         console.error(`ERROR: no channel with name "${channelName}" exists`);
+// //       } catch {
+// //         client.channel = channelName;
+// //         console.log(`Switched to channel: "${channelName}"`);
+// //       }
+// //     }
+// //   } // else {}
+// // }
+
+// // function checkChannel(args: string[]): string | undefined {
+// //   const name = args.shift();
+
+// //   if (name === undefined) {
+// //     console.error(`ERROR: no channel name provided`);
+// //   } else if (args.shift() !== undefined) {
+// //     console.error(
+// //       `ERROR: a channel name cannot have a space (" ") in the name`
+// //     );
+// //   } else {
+// //     return name;
+// //   }
+
+// //   return;
+// // }
+
+// // function ask() {
+// //   inquirer
+// //     .prompt([{ type: 'input', name: 'line', message: '> ' }])
+// //     .then(({ line }: { line: string }) => {
+// //       commands(line, [
+// //         [['exit'], () => process.exit(0)],
+// //         [['clear'], console.clear],
+// //         [['channel', 'c'], channel],
+// //         // [["message", "m"], () => {}],
+// //         // [["reply", "r"], () => {}],
+// //       ]);
+// //       ask();
+// //     });
+// // }
+// // ask();

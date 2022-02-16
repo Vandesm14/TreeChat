@@ -86,6 +86,7 @@ describe('Chain', () => {
           block3.id,
         ]);
       });
+
       it('should get the reverse trail of a block and stop at a branch', () => {
         const chain = new Chain();
         const block = chain.add({ data: 'block', ref: null });
@@ -94,6 +95,11 @@ describe('Chain', () => {
         append('block3');
         chain.add({ data: 'block4', ref: block2.id });
         expect(chain.getReverseTrail(block.id)).toEqual([block.id, block2.id]);
+      });
+
+      it('should return an empty array if the block does not exist', () => {
+        const chain = new Chain();
+        expect(chain.getReverseTrail('123')).toEqual([]);
       });
     });
 
@@ -123,6 +129,11 @@ describe('Chain', () => {
         expect(chain.get(block3.id)).toEqual(block3);
         expect(chain.get(block4.id)).toEqual(block4);
       });
+
+      it('should return undefined if the block does not exist', () => {
+        const chain = new Chain();
+        expect(chain.remove('123')).toBeUndefined();
+      });
     });
   });
 
@@ -139,6 +150,14 @@ describe('Chain', () => {
           name: 'master',
         });
       });
+
+      it('should fail if a pointer already exists', () => {
+        const chain = new Chain();
+        const block = chain.add({ data: 'block', ref: null });
+        const block2 = chain.add({ data: 'block2', ref: block.id });
+        chain.addPointer('master', block2.id);
+        expect(() => chain.addPointer('master', block2.id)).toThrow('Pointer "master" already exists');
+      });
     });
 
     describe('setPointer', () => {
@@ -150,6 +169,19 @@ describe('Chain', () => {
         expect(chain.getPointer('master')).toEqual({
           base: block.id,
           tip: '456',
+          name: 'master',
+        });
+      });
+
+      it('should update the tip and base of a pointer', () => {
+        const chain = new Chain();
+        const block = chain.add({ data: 'block', ref: null });
+        const block2 = chain.add({ data: 'block2', ref: block.id });
+        chain.addPointer('master', block.id);
+        chain.setPointer('master', block2.id, block2.id);
+        expect(chain.getPointer('master')).toEqual({
+          base: block2.id,
+          tip: block2.id,
           name: 'master',
         });
       });
@@ -183,6 +215,11 @@ describe('Chain', () => {
         chain.addPointer('master', block.id);
         chain.removePointer('master');
         expect(chain.getPointer('master')).toBeUndefined();
+      });
+
+      it('should return undefined if pointer does not exist', () => {
+        const chain = new Chain();
+        expect(chain.removePointer('master')).toBeUndefined();
       });
     });
 

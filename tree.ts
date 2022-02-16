@@ -34,13 +34,12 @@ export class Chain<D = string> {
     this.pointers = new Map(init?.pointers ?? []);
     this.blocks = new Map(init?.blocks ?? []);
     this.mainPointer = init?.mainPointer ?? 'main';
-    return this;
   }
 
   // Block functions
-  add(block: Maybe<Omit<Block<D>, 'id'>, 'ref'>): Block<D> {
+  add(block: Omit<Block<D>, 'id'>): Block<D> {
     const id = uuid();
-    const newblock = { ...block, id, ref: block.ref ?? null };
+    const newblock = { ...block, id, ref: block.ref };
     this.blocks.set(id, newblock);
     return newblock;
   }
@@ -78,7 +77,6 @@ export class Chain<D = string> {
       const block = this.get(current);
       if (!block?.ref) break;
       current = block.ref;
-      if (!current) break;
       trail.unshift(current);
     }
     return trail;
@@ -105,10 +103,10 @@ export class Chain<D = string> {
   getPointer(name: Pointer['name']): Pointer | undefined {
     return this.pointers.get(name);
   }
-  setPointer(name: Pointer['name'], tip: Block['id']): Pointer {
+  setPointer(name: Pointer['name'], tip: Block['id'], base?: Block['id']): Pointer {
     const pointer = this.getPointer(name);
     if (!pointer) throw new Error(`No such pointer "${name}"`);
-    this.pointers.set(name, { name, base: pointer?.base ?? tip, tip: tip });
+    this.pointers.set(name, { name, base: base ?? pointer?.base ?? tip, tip });
     return pointer;
   }
   addPointer(

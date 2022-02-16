@@ -22,9 +22,15 @@ export type Maybe<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export class Chain<D = string> {
   pointers: Pointers;
   blocks: Blocks<D>;
+
+  // TODO: Do we need to support a main pointer?
   mainPointer: Pointer['name'];
 
-  constructor(init?: { pointers?: Pointers; blocks?: Blocks<D>; mainPointer?: Pointer['name'] }) {
+  constructor(init?: {
+    pointers?: Pointers;
+    blocks?: Blocks<D>;
+    mainPointer?: Pointer['name'];
+  }) {
     this.pointers = new Map(init?.pointers ?? []);
     this.blocks = new Map(init?.blocks ?? []);
     this.mainPointer = init?.mainPointer ?? 'main';
@@ -104,7 +110,8 @@ export class Chain<D = string> {
     return pointer;
   }
   addPointer(name: Pointer['name'], base: Block['id'], tip?: Block['id']) {
-    if (this.pointers.has(name)) throw new Error(`Pointer "${name}" already exists`);
+    if (this.pointers.has(name))
+      throw new Error(`Pointer "${name}" already exists`);
     this.pointers.set(name, { name, base, tip: tip ?? base });
     return this.getPointer(name);
   }
@@ -112,6 +119,7 @@ export class Chain<D = string> {
     return this.pointers.delete(name);
   }
 
+  // TODO: Do we need to support a main pointer?
   getMainPointer() {
     return this.getPointer(this.mainPointer);
   }

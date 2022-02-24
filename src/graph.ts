@@ -1,5 +1,3 @@
-// import { v4 as uuid } from 'uuid';
-
 /** A node in the `Graph`. */
 export class Node<K, V> {
   /** The value of this node. */

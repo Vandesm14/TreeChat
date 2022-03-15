@@ -91,6 +91,18 @@ const TopicList: FC<TopicListProps> = ({
           Go back
         </a>
       )}
+      <ul>
+        {query.getChildTopics(topicMsg.id).map((message) => (
+          <li>
+            <a
+              href="javascript:void(0)"
+              onClick={() => setCurrentTopic(message.id)}
+            >
+              {message.topic.name}
+            </a>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 };

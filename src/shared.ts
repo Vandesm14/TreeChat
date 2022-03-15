@@ -11,7 +11,7 @@ export interface Message {
   userId: User['id'];
   text: string;
   children?: Message['id'][];
-  topic?: Topic
+  topic?: Topic;
   timestamp: number;
 }
 
@@ -47,7 +47,26 @@ export class Database {
   listMessages(topicId: Message['id']): Message[] {
     const topic = this.#messages.find((message) => message.id === topicId);
     // return the children of the topic
-    const messages = topic.children.map((id) => this.#messages.find((message) => message.id === id));
+    const messages = topic.children.map((id) =>
+      this.#messages.find((message) => message.id === id)
+    );
+    return messages;
+  }
+
+  getChildMessages(id: Message['id']): Message[] {
+    const message = this.#messages.find((message) => message.id === id);
+    const messages = message.children.map((id) =>
+      this.#messages.find((message) => message.id === id)
+    );
+    return messages;
+  }
+
+  getChildTopics(id: Message['id']): Message[] {
+    const message = this.#messages.find((message) => message.id === id);
+    const messages = message.children
+      .map((id) => this.#messages.find((message) => message.id === id))
+      .filter((message) => message.topic);
+
     return messages;
   }
 
@@ -66,17 +85,13 @@ export class Database {
 
   getParentTopic(id: Message['id']): Message | undefined {
     const message = this.#messages.find((message) => message.id === id);
-    return message ? this.#messages.find((message) => message.children?.includes(id)) : undefined;
+    return message
+      ? this.#messages.find((message) => message.children?.includes(id))
+      : undefined;
   }
 
   getTopics(topicName: string): Message[] {
     return this.#messages.filter((message) => message.topic.name === topicName);
-  }
-
-  listTopics(limit = 10): Message[] {
-    return this.#messages
-      .filter((message) => message.topic.name)
-      .slice(0, limit);
   }
 }
 
@@ -90,7 +105,7 @@ export function createDefaultMessages() {
     text: '#general',
     children: [],
     timestamp: Date.now(),
-  }
+  };
 
   const root: Message = {
     id: snowflake.nextId(),
@@ -98,7 +113,7 @@ export function createDefaultMessages() {
     text: '(root)',
     children: [general.id],
     timestamp: Date.now(),
-  }
+  };
 
   return [root, general];
 }

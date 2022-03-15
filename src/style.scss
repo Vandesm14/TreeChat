@@ -13,13 +13,18 @@ p {
   margin: 0;
 }
 
+.hstack {
+  display: flex;
+  flex-direction: row;
+}
+
 main {
   display: grid;
   padding: 1rem;
   width: calc(100% - 2rem);
   height: calc(100% - 2rem);
 
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: 1fr 4fr;
   grid-template-rows: 1fr;
 
   .messaging,

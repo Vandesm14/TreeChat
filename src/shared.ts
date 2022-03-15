@@ -15,18 +15,9 @@ export interface Message {
   timestamp: number;
 }
 
-export class User {
+export interface User {
   id: bigint;
-  #messages: Message[];
-
-  constructor(id: User['id']) {
-    this.id = id;
-    this.#messages = this.#messages.filter((message) => message.userId === id);
-  }
-
-  messages(): Message[] {
-    return this.#messages;
-  }
+  name: string;
 }
 
 export class Database {
@@ -68,11 +59,6 @@ export class Database {
       .filter((message) => message.topic);
 
     return messages;
-  }
-
-  getUser(userId: User['id']): User | undefined {
-    const user = this.#messages.find((message) => message.userId === userId);
-    return user ? new User(userId) : undefined;
   }
 
   getTopic(topicName: string): Message | undefined {

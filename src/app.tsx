@@ -1,6 +1,6 @@
 import { render, FunctionalComponent as FC } from 'preact';
 import { useState, StateUpdater, useReducer, useMemo } from 'preact/hooks';
-import { Message, Database, createDefaultMessages } from './shared';
+import { Message, Database, createDefaultMessages, User } from './shared';
 
 import { Worker } from 'snowflake-uuid';
 const snowflake = new Worker();
@@ -57,7 +57,7 @@ const MessageInput: FC<MessageInputProps> = ({ setMessages }) => {
 
   return (
     <form onSubmit={handleSubmit} class="message-input">
-      <input type="text" value={text} onChange={setFromEvent(setText)} />
+      <input type="text" value={text} onChange={setFromEvent(setText)} placeholder="Send a message" />
       <button type="submit">Send</button>
     </form>
   );
@@ -85,7 +85,6 @@ const TopicList: FC<TopicListProps> = ({
 
   return (
     <section className="topics">
-      <p className="topic-current">{topicMsg.topic?.name ?? '(root)'}</p>
       {parent && (
         <a href="javascript:void(0)" onClick={goBack}>
           Go back
@@ -124,25 +123,16 @@ const App = () => {
       switch (action.type) {
         case 'add':
           ret = [...state, action.payload];
-          const topic = messages.find((m) => m.id === currentTopic);
-          if (topic) {
-            topic.children.push(action.payload.id);
+          const topicMsg = state.find((m) => m.id === currentTopic);
+          if (topicMsg) {
+            topicMsg.children.push(action.payload.id);
+            topicMsg.topic ?? (topicMsg.topic = { name: topicMsg.text, timestamp: Date.now() });
           } else {
             throw new Error('Topic not found');
           }
           break;
         case 'enter':
           setCurrentTopic(action.payload);
-          let message = messages.find((m) => m.id === action.payload);
-          if (message) {
-            message.topic = {
-              name: message.text,
-              timestamp: Date.now(),
-            };
-            ret = [...state.filter((m) => m.id !== action.payload), message];
-          } else {
-            throw new Error('Message not found');
-          }
           break;
       }
       localStorage.setItem(
@@ -159,6 +149,10 @@ const App = () => {
   );
   const [currentTopic, setCurrentTopic] = useState(messages[0].id);
   const query = useMemo(() => new Database(messages), [messages]);
+  const [user, setUser] = useState<User>({
+    id: snowflake.nextId(),
+    name: '',
+  });
 
   return (
     <main>
@@ -168,12 +162,21 @@ const App = () => {
         query={query}
       />
       <section className="messaging">
+        <h2>{query.getMessage(currentTopic).text}</h2>
         <div className="message-list">
           {query.listMessages(currentTopic).map((m) => (
             <Message message={m} setMessages={setMessages} />
           ))}
         </div>
-        <MessageInput setMessages={setMessages} />
+        <div className="hstack">
+          <input
+            type="text"
+            value={user.name}
+            onChange={() => setUser({ ...user, name: user.name })}
+            placeholder="Username"
+          />
+          <MessageInput setMessages={setMessages} />
+        </div>
       </section>
     </main>
   );

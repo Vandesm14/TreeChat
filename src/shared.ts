@@ -79,6 +79,21 @@ export class Database {
   getTopics(topicName: string): Message[] {
     return this.#messages.filter((message) => message.topic.name === topicName);
   }
+
+  getPath(id: Message['id']): Message[] {
+    const path: Message[] = [];
+    let message = this.getMessage(id);
+    for (let max = 100; message && max > 0; max--) {
+      path.unshift(message);
+      message = this.getParentTopic(message.id);
+    }
+    return path;
+  }
+
+  getPathString(id: Message['id']): string {
+    const path = this.getPath(id);
+    return path.map((message) => message.topic?.name ?? message.text ?? '').join('/');
+  }
 }
 
 export function createDefaultMessages() {

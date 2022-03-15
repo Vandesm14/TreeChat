@@ -36,12 +36,20 @@ main {
       flex-grow: 1;
 
       .message {
-        display: flex;
+        // display: flex;
         padding: 0.3rem 0;
         height: max-content;
 
-        > * {
+        .hstack > * {
           padding: 0.2rem;
+        }
+
+        .message-children {
+          margin-left: 0.6rem;
+
+          .message {
+            padding-bottom: 0;
+          }
         }
       }
     }

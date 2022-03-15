@@ -14,21 +14,49 @@ type Action<A> = (action: A) => void;
 
 type MessageProps = {
   message: Message;
-  setMessages: Action<MessageAction>;
+  children: Message[];
+  query: Database;
+  setCurrentTopic: StateUpdater<Message['id']>;
 };
 
-const Message: FC<MessageProps> = ({ message, setMessages }) => {
+const Message: FC<MessageProps> = ({
+  message,
+  setCurrentTopic,
+  query,
+  children,
+}) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const enterMessage = () => {
-    setMessages({ type: 'enter', payload: message.id });
+    setCurrentTopic(message.id);
+  };
+
+  const toggleExpanded = () => {
+    setIsExpanded(!isExpanded);
   };
 
   return (
     <div className="message">
-      <button onClick={enterMessage}>Enter</button>
-      <span>{message.text}</span>
-      <span>
-        {message.children.length ? `(${message.children.length})` : ''}
-      </span>
+      <div className="hstack">
+        <button onClick={toggleExpanded}>{isExpanded ? '-' : '+'}</button>
+        <button onClick={enterMessage}>●</button>
+        <span>{message.text}</span>
+        <span>
+          {message.children.length ? `(${message.children.length})` : ''}
+        </span>
+      </div>
+      {isExpanded && (
+        <div className="message-children">
+          {children.map((child) => (
+            <Message
+              message={child}
+              setCurrentTopic={setCurrentTopic}
+              query={query}
+              children={query.getChildMessages(child.id)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -57,7 +85,12 @@ const MessageInput: FC<MessageInputProps> = ({ setMessages }) => {
 
   return (
     <form onSubmit={handleSubmit} class="message-input">
-      <input type="text" value={text} onChange={setFromEvent(setText)} placeholder="Send a message" />
+      <input
+        type="text"
+        value={text}
+        onChange={setFromEvent(setText)}
+        placeholder="Send a message"
+      />
       <button type="submit">Send</button>
     </form>
   );
@@ -106,15 +139,10 @@ const TopicList: FC<TopicListProps> = ({
   );
 };
 
-type MessageAction =
-  | {
-      type: 'add';
-      payload: Message;
-    }
-  | {
-      type: 'enter';
-      payload: Message['id'];
-    };
+type MessageAction = {
+  type: 'add';
+  payload: Message;
+};
 
 const App = () => {
   const [messages, setMessages] = useReducer(
@@ -126,13 +154,11 @@ const App = () => {
           const topicMsg = state.find((m) => m.id === currentTopic);
           if (topicMsg) {
             topicMsg.children.push(action.payload.id);
-            topicMsg.topic ?? (topicMsg.topic = { name: topicMsg.text, timestamp: Date.now() });
+            topicMsg.topic ??
+              (topicMsg.topic = { name: topicMsg.text, timestamp: Date.now() });
           } else {
             throw new Error('Topic not found');
           }
-          break;
-        case 'enter':
-          setCurrentTopic(action.payload);
           break;
       }
       localStorage.setItem(
@@ -162,10 +188,15 @@ const App = () => {
         query={query}
       />
       <section className="messaging">
-        <h2>{query.getMessage(currentTopic).text}</h2>
+        <h2>{query.getPathString(currentTopic)}</h2>
         <div className="message-list">
           {query.listMessages(currentTopic).map((m) => (
-            <Message message={m} setMessages={setMessages} />
+            <Message
+              message={m}
+              setCurrentTopic={setCurrentTopic}
+              query={query}
+              children={query.getChildMessages(m.id)}
+            />
           ))}
         </div>
         <div className="hstack">

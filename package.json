@@ -16,11 +16,12 @@
   "scripts": {
     "build": "parcel build ./src/index.html",
     "fmt": "prettier --write --config .prettierrc *.ts",
-    "start": "parcel ./src/index.html"
+    "start": "parcel ./src/index.html -p 5500"
   },
   "dependencies": {
     "parcel": "^2.3.2",
     "preact": "^10.6.6",
+    "snowflake-uuid": "^1.0.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

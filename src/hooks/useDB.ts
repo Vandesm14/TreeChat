@@ -13,6 +13,7 @@ export interface Datastore {
   getChildren: (id: Block['parent']) => Block[];
   getRootBlocks: () => Block[];
   getAll: () => Block[];
+  getPath: (id: Block['id']) => Block[];
 
   map: (fn: (block: Block) => Block) => void;
 
@@ -60,6 +61,17 @@ const createDb = (
   getChildren: (id) => blocks.filter((b) => b.parent === id),
   getRootBlocks: () => blocks.filter((b) => b.parent === null),
   getAll: () => blocks,
+  getPath: (id) => {
+    // recursively get the path to the root block
+    const getParents = (id: Block['id']): Block[] => {
+      const block = blocks.find((b) => b.id === id);
+      if (!block) return [];
+      if (block.parent === null) return [block];
+      return [block, ...getParents(block.parent)];
+    };
+
+    return getParents(id).reverse();
+  },
 
   map: (fn) => {
     const newBlocks = blocks.map(fn);

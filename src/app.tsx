@@ -1,11 +1,14 @@
+import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { List } from './components/List';
 import { seedBlocks } from './db';
 import { useDB } from './hooks/useDB';
 import { Block } from './types';
+import { Path } from './components/Path';
 
 const App = () => {
   const db = useDB(seedBlocks());
+  const [root, setRoot] = React.useState<Block['parent']>(null);
 
   const setExpanded = (id: Block['id'], expanded: boolean) => {
     if (db.has(id)) {
@@ -21,10 +24,13 @@ const App = () => {
       <h1>Blocks</h1>
       <button onClick={expandAll}>Expand All</button>
       <button onClick={collapseAll}>Collapse All</button>
+      <br />
+      <Path path={root ? db.getPath(root) : []} setRoot={setRoot} />
       <List
-        blocks={db.getRootBlocks()}
+        blocks={db.getChildren(root)}
         getChildren={db.getChildren}
         setExpanded={setExpanded}
+        setRoot={setRoot}
       />
     </div>
   );

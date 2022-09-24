@@ -6,19 +6,25 @@ export interface ListProps {
   blocks: Block[];
   getChildren: Datastore['getChildren'];
   setExpanded: (id: Block['id'], expanded: boolean) => void;
+  setRoot: (id: Block['id'] | null) => void;
 }
 
-export const List = ({ blocks, getChildren, setExpanded }: ListProps) => {
+export const List = ({
+  blocks,
+  getChildren,
+  setExpanded,
+  setRoot,
+}: ListProps) => {
   return (
     <ul>
       {blocks.map((block) => {
         const children = getChildren(block.id);
         return (
-          <div>
+          <div key={block.id}>
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '1rem auto',
+                gridTemplateColumns: '1.3rem 1.3rem auto',
                 gap: '0.5rem',
                 height: '1.5rem',
                 alignItems: 'center',
@@ -31,14 +37,15 @@ export const List = ({ blocks, getChildren, setExpanded }: ListProps) => {
               ) : (
                 <span />
               )}
+              <button onClick={() => setRoot(block.id)}>{'>'}</button>
               <Message key={block.id} block={block} />
             </div>
             {block.expanded ? (
               <List
-                key={block.id}
                 blocks={children}
                 getChildren={getChildren}
                 setExpanded={setExpanded}
+                setRoot={setRoot}
               />
             ) : null}
           </div>

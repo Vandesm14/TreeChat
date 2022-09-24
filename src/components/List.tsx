@@ -17,24 +17,30 @@ export const List = ({ blocks, getChildren, setExpanded }: ListProps) => {
           <div>
             <div
               style={{
-                display: 'flex',
+                display: 'grid',
+                gridTemplateColumns: '1rem auto',
+                gap: '0.5rem',
+                height: '1.5rem',
+                alignItems: 'center',
               }}
             >
-              {children.length > 0 && (
+              {children.length > 0 ? (
                 <button onClick={() => setExpanded(block.id, !block.expanded)}>
                   {block.expanded ? '-' : '+'}
                 </button>
+              ) : (
+                <span />
               )}
               <Message key={block.id} block={block} />
             </div>
-            {block.expanded && (
+            {block.expanded ? (
               <List
                 key={block.id}
                 blocks={children}
                 getChildren={getChildren}
                 setExpanded={setExpanded}
               />
-            )}
+            ) : null}
           </div>
         );
       })}

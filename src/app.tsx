@@ -13,9 +13,14 @@ const App = () => {
     }
   };
 
+  const expandAll = () => db.map((block) => ({ ...block, expanded: true }));
+  const collapseAll = () => db.map((block) => ({ ...block, expanded: false }));
+
   return (
     <div>
       <h1>Blocks</h1>
+      <button onClick={expandAll}>Expand All</button>
+      <button onClick={collapseAll}>Collapse All</button>
       <List
         blocks={db.getRootBlocks()}
         getChildren={db.getChildren}

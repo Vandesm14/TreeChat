@@ -14,6 +14,8 @@ export interface Datastore {
   getRootBlocks: () => Block[];
   getAll: () => Block[];
 
+  map: (fn: (block: Block) => Block) => void;
+
   blocks: Block[];
 }
 
@@ -58,6 +60,11 @@ const createDb = (
   getChildren: (id) => blocks.filter((b) => b.parent === id),
   getRootBlocks: () => blocks.filter((b) => b.parent === null),
   getAll: () => blocks,
+
+  map: (fn) => {
+    const newBlocks = blocks.map(fn);
+    setBlocks(newBlocks);
+  },
 
   blocks,
 });

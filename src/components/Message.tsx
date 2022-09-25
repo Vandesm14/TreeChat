@@ -1,4 +1,5 @@
 import { Block } from '../types';
+import { Row } from './compose/flex';
 
 export interface MessageProps {
   block: Block;
@@ -14,9 +15,8 @@ const timestampAsTime = (timestamp: number) => {
 
 export const Message = ({ block, style }: MessageProps) => {
   return (
-    <div
+    <Row
       style={{
-        display: 'flex',
         gap: '0.5rem',
         ...style,
       }}
@@ -24,6 +24,6 @@ export const Message = ({ block, style }: MessageProps) => {
       <i>{timestampAsTime(block.timestamp)}</i>
       <b>{block.user}</b>
       <span>{block.content}</span>
-    </div>
+    </Row>
   );
 };

@@ -5,6 +5,8 @@ import { seedBlocks } from './db';
 import { useDB } from './hooks/useDB';
 import { Block } from './types';
 import { Path } from './components/Path';
+import { ChatBox } from './components/ChatBox';
+import { Column, Row } from './components/compose/flex';
 
 const App = () => {
   const db = useDB(seedBlocks());
@@ -20,19 +22,22 @@ const App = () => {
   const collapseAll = () => db.map((block) => ({ ...block, expanded: false }));
 
   return (
-    <div>
+    <Column>
       <h1>Blocks</h1>
-      <button onClick={expandAll}>Expand All</button>
-      <button onClick={collapseAll}>Collapse All</button>
-      <br />
+      <Row>
+        <button onClick={expandAll}>Expand All</button>
+        <button onClick={collapseAll}>Collapse All</button>
+      </Row>
       <Path path={root ? db.getPath(root) : []} setRoot={setRoot} />
       <List
         blocks={db.getChildren(root)}
         getChildren={db.getChildren}
         setExpanded={setExpanded}
         setRoot={setRoot}
+        isTopLevel={true}
       />
-    </div>
+      <ChatBox addBlock={db.add} parent={root} />
+    </Column>
   );
 };
 

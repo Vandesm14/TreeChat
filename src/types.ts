@@ -6,6 +6,7 @@ export interface Block {
   timestamp: number;
   parent: string | null;
   expanded: boolean;
+  pinned: boolean;
 }
 
-export type CreateBlock = Omit<Block, 'id'>;
+export type CreateBlock = Pick<Block, 'user' | 'content'> & Partial<Block>;

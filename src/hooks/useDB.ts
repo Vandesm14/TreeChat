@@ -26,11 +26,14 @@ const createDb = (
 ): Datastore => ({
   has: (id) => blocks.some((b) => b.id === id),
 
-  add: (block, parent) => {
+  add: (block) => {
     const newBlock: Block = {
-      ...block,
       id: nanoid(),
-      parent: parent || null,
+      expanded: false,
+      pinned: false,
+      parent: null,
+      timestamp: Date.now(),
+      ...block,
     };
 
     setBlocks([...blocks, newBlock]);

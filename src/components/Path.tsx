@@ -15,7 +15,7 @@ export const Path = ({ path, setRoot }: PathProps) => {
           <button key={block.id} onClick={() => setRoot(block.id)}>
             {block.content}
           </button>
-          {i < path.length - 1 ? <span>/</span> : null}
+          {i < path.length - 1 ? <span key={block.id + 'sep'}>/</span> : null}
         </>
       ))}
     </div>

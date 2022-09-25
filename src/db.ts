@@ -11,6 +11,7 @@ export const seedBlocks = (max = 20): Block[] => {
       timestamp: Date.now(),
       parent: null,
       expanded: false,
+      pinned: false,
     });
   }
 

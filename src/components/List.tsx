@@ -7,6 +7,7 @@ export interface ListProps {
   getChildren: Datastore['getChildren'];
   setExpanded: (id: Block['id'], expanded: boolean) => void;
   setRoot: (id: Block['id'] | null) => void;
+  isTopLevel?: boolean;
 }
 
 export const List = ({
@@ -14,13 +15,19 @@ export const List = ({
   getChildren,
   setExpanded,
   setRoot,
+  isTopLevel = false,
 }: ListProps) => {
   return (
-    <ul>
+    <ul
+      style={{
+        listStyle: 'none',
+        paddingLeft: isTopLevel ? 0 : '1.8rem',
+      }}
+    >
       {blocks.map((block) => {
         const children = getChildren(block.id);
         return (
-          <div key={block.id}>
+          <li key={block.id}>
             <div
               style={{
                 display: 'grid',
@@ -48,7 +55,7 @@ export const List = ({
                 setRoot={setRoot}
               />
             ) : null}
-          </div>
+          </li>
         );
       })}
     </ul>

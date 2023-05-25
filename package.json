@@ -2,6 +2,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "server:start": "node ./build/server/app.js",
+    "server:build": "tsc --project tsconfig.server.json",
+    "server": "npm run server:build && npm run server:start",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "jest",
@@ -18,12 +21,14 @@
     "@typescript-eslint/parser": "^5.54.1",
     "dayjs": "^1.11.7",
     "gun": "^0.2020.1239",
+    "jotai": "^2.1.0",
     "nanoid": "^4.0.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "sass": "^1.62.1"
   },
   "devDependencies": {
+    "@types/node": "^20.2.3",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
     "@vitejs/plugin-react": "^2.1.0",

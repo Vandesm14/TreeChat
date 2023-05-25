@@ -11,6 +11,9 @@ function Chat({ parent }: { parent: MessageType['id'] }) {
   const [messages, setMessages] = React.useState<MessageType[]>([]);
 
   React.useEffect(() => {
+    // Reset messages (when parent changes)
+    setMessages([]);
+
     // Subscribe to real-time updates
     const messageQuery = gun.get('messages').get(parent);
     messageQuery.map().on<MessageType>((message) => {
@@ -27,7 +30,7 @@ function Chat({ parent }: { parent: MessageType['id'] }) {
       // Unsubscribe when the component unmounts
       messageQuery.off();
     };
-  }, []);
+  }, [parent]);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();

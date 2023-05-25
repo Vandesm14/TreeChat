@@ -1,0 +1,51 @@
+html,
+body,
+div,
+form,
+fieldset,
+legend,
+label {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #272727;
+  color: #ffffff;
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+}
+
+.message {
+  display: table-row;
+  width: 100%;
+
+  & > * {
+    display: table-cell;
+  }
+
+  .message__date {
+    font-size: 11px;
+    text-align: right;
+  }
+
+  .message__bullet {
+    padding: 0 8px;
+  }
+
+  .message__text {
+    font-size: 16px;
+  }
+}
+
+.chat-box {
+  .chat-box__list {
+    display: table;
+  }
+
+  .chat-box__input {
+    display: flex;
+    margin-top: 16px;
+    margin-bottom: 16px;
+  }
+}

@@ -12,12 +12,16 @@
     "format:check": "prettier -c \"**/*.{ts,tsx,html}\""
   },
   "dependencies": {
+    "@blueprintjs/core": "^4.19.3",
+    "@blueprintjs/popover2": "^1.14.5",
     "@typescript-eslint/eslint-plugin": "^5.54.1",
     "@typescript-eslint/parser": "^5.54.1",
+    "dayjs": "^1.11.7",
     "gun": "^0.2020.1239",
     "nanoid": "^4.0.2",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "sass": "^1.62.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.17",

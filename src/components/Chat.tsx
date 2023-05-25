@@ -2,6 +2,8 @@ import React from 'react';
 import { gunContext } from '../gun';
 import { IGunInstance } from 'gun';
 import { nanoid } from 'nanoid';
+import RelativeTime from './RelativeTime';
+import { Button, InputGroup } from '@blueprintjs/core';
 
 type Message = {
   /** The ID of the message */
@@ -68,23 +70,26 @@ function Chat({}) {
   };
 
   return (
-    <>
-      <ul>
+    <div className="chat-box">
+      <ul className="chat-box__list">
         {messages.map((message) => (
-          <li key={message.id}>
-            <i>{new Date(message.epoch).toLocaleString()}</i>: {message.text}
+          <li key={message.id} className="message">
+            <i className="message__date">
+              <RelativeTime date={new Date(message.epoch)} />
+            </i>
+            <span className="message__bullet">●</span>
+            <span className="message__text">{message.text}</span>
           </li>
         ))}
       </ul>
-      <form onSubmit={onSubmit}>
-        <input
-          type="text"
+      <form onSubmit={onSubmit} className="chat-box__input">
+        <InputGroup
           value={message}
           onChange={(e) => setMessage(e.target.value)}
         />
-        <button type="submit">Send</button>
+        <Button type="submit">Send</Button>
       </form>
-    </>
+    </div>
   );
 }
 

@@ -7,5 +7,10 @@ console.log(`Connecting to ${GunURL}`);
 
 export const gun = Gun({
   peers: [GunURL],
+  localStorage: false,
 });
+
+// @ts-expect-error: I can do what I want
+window.gun = gun;
+
 export const gunContext = React.createContext(gun);

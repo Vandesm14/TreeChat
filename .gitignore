@@ -13,6 +13,9 @@ dist-ssr
 *.local
 build
 
+# GunDB
+radata
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

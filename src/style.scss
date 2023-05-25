@@ -59,9 +59,8 @@ body {
     padding-left: 10px;
   }
 
-  .chat-box__input {
+  .chat-box__form {
     display: flex;
-    margin-top: 16px;
-    margin-bottom: 16px;
+    height: min-content;
   }
 }

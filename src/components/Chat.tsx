@@ -1,7 +1,7 @@
 import React from 'react';
 import { gunContext } from '../gun';
 import { nanoid } from 'nanoid';
-import { Button, InputGroup } from '@blueprintjs/core';
+import { Button, EditableText, InputGroup } from '@blueprintjs/core';
 import { Message as MessageType, byEpoch, createMessage } from '../messages';
 import Message from './Message';
 
@@ -49,14 +49,26 @@ function Chat({ parent }: { parent: MessageType['id'] }) {
         {messages.map((message) => (
           <Message key={message.id} message={message} />
         ))}
+        <li className="message">
+          <i
+            className="message__date"
+            style={{ opacity: 0, userSelect: 'none' }}
+          ></i>
+          <span className={`message__bullet`}>●</span>
+          <form onSubmit={onSubmit} className="chat-box__form">
+            <InputGroup
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="chat-box__form__input"
+              placeholder="Type a message"
+              small
+            />
+            <Button type="submit" small>
+              Send
+            </Button>
+          </form>
+        </li>
       </ul>
-      <form onSubmit={onSubmit} className="chat-box__input">
-        <InputGroup
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-        />
-        <Button type="submit">Send</Button>
-      </form>
     </div>
   );
 }

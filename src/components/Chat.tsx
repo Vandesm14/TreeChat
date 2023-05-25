@@ -5,17 +5,16 @@ import { Button, InputGroup } from '@blueprintjs/core';
 import { Message as MessageType, byEpoch, createMessage } from '../messages';
 import Message from './Message';
 
-function Chat({ parent }: { parent: MessageType['parent'] }) {
+function Chat({ parent }: { parent: MessageType['id'] }) {
   const gun = React.useContext(gunContext);
   const [message, setMessage] = React.useState('');
   const [messages, setMessages] = React.useState<MessageType[]>([]);
 
   React.useEffect(() => {
     // Subscribe to real-time updates
-    const messageQuery = gun.get('messages');
-    messageQuery.map().on((message) => {
+    const messageQuery = gun.get('messages').get(parent);
+    messageQuery.map().on<MessageType>((message) => {
       setMessages((prevMessages) => {
-        if (message.parent !== parent) return prevMessages;
         if (prevMessages.some((m) => m.id === message.id)) return prevMessages;
 
         const newMessages = [...prevMessages, message];
@@ -32,10 +31,9 @@ function Chat({ parent }: { parent: MessageType['parent'] }) {
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createMessage(gun, {
+    createMessage(gun, parent, {
       id: nanoid(),
       text: message,
-      parent: parent ?? '',
       epoch: Date.now(),
     });
 

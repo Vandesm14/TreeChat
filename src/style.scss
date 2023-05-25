@@ -37,6 +37,10 @@ body {
       cursor: pointer;
       color: #ff0000;
     }
+
+    &.message__bullet--has-replies {
+      color: #ffff00;
+    }
   }
 
   .message__text {

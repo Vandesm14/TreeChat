@@ -2,9 +2,21 @@ import React from 'react';
 import { Message as MessageType } from '../messages';
 import RelativeTime from './RelativeTime';
 import Chat from './Chat';
+import { gunContext } from '../gun';
 
 function Message({ message }: { message: MessageType }) {
+  const gun = React.useContext(gunContext);
   const [showReplies, setShowReplies] = React.useState(false);
+  const [hasReplies, setHasReplies] = React.useState(false);
+
+  React.useEffect(() => {
+    gun
+      .get('messages')
+      .get(message.id)
+      .once<MessageType>((message) => {
+        setHasReplies(!!message);
+      });
+  }, []);
 
   const toggleReplies = () => setShowReplies((prev) => !prev);
 
@@ -13,7 +25,12 @@ function Message({ message }: { message: MessageType }) {
       <i className="message__date">
         <RelativeTime date={new Date(message.epoch)} />
       </i>
-      <span className="message__bullet" onClick={toggleReplies}>
+      <span
+        className={`message__bullet ${
+          hasReplies ? 'message__bullet--has-replies' : ''
+        }`}
+        onClick={toggleReplies}
+      >
         ●
       </span>
       <div className="message__box">

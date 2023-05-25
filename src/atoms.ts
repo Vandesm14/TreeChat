@@ -1,3 +1,3 @@
 import { atom } from 'jotai';
 
-export const chatListRootAtom = atom<string>('root');
+export const chatListPathAtom = atom<string[]>(['root']);

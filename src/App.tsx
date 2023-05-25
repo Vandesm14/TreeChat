@@ -1,35 +1,23 @@
 import { createRoot } from 'react-dom/client';
 import Chat from './components/Chat';
 import { gun, gunContext } from './gun';
-import React from 'react';
 import { useAtom } from 'jotai';
-import { chatListRootAtom } from './atoms';
+import { chatListPathAtom } from './atoms';
 import { Button } from '@blueprintjs/core';
 
 function App() {
-  const [root, setRoot] = useAtom(chatListRootAtom);
-
-  React.useEffect(() => {
-    // Check if the root message exists, if not, create it
-    gun
-      .get('messages')
-      .get('root')
-      .once((message) => {
-        if (!message) {
-          gun.get('messages').put({
-            id: 'root',
-            text: '',
-            epoch: Date.now(),
-          });
-        }
-      });
-  }, []);
+  const [path, setPath] = useAtom(chatListPathAtom);
 
   return (
     <gunContext.Provider value={gun}>
-      <Chat parent={root} />
-      {root !== 'root' ? (
-        <Button onClick={() => setRoot('root')}>Back</Button>
+      {/* <Path id={path} /> */}
+      <Chat path={path} />
+      {path.length > 1 ? (
+        <Button
+          onClick={() => setPath((path) => path.slice(0, path.length - 1))}
+        >
+          Back
+        </Button>
       ) : null}
     </gunContext.Provider>
   );

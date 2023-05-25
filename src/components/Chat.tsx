@@ -1,28 +1,43 @@
 import React from 'react';
 import { gunContext } from '../gun';
-import { nanoid } from 'nanoid';
-import { Button, EditableText, InputGroup } from '@blueprintjs/core';
-import { Message as MessageType, byEpoch, createMessage } from '../messages';
+import { Button, InputGroup } from '@blueprintjs/core';
+import {
+  MessageNode,
+  MessageSchema,
+  byEpoch,
+  createMessage,
+  traverse,
+} from '../../shared/messages';
 import Message from './Message';
+import { GunDataNode } from 'gun/types';
 
-function Chat({ parent }: { parent: MessageType['id'] }) {
+function Chat({ path }: { path: MessageSchema['id'][] }) {
   const gun = React.useContext(gunContext);
   const [message, setMessage] = React.useState('');
-  const [messages, setMessages] = React.useState<MessageType[]>([]);
+  const [messages, setMessages] = React.useState<GunDataNode<MessageSchema>[]>(
+    []
+  );
 
   React.useEffect(() => {
     // Reset messages (when parent changes)
     setMessages([]);
 
-    // Subscribe to real-time updates
-    const messageQuery = gun.get('messages').get(parent);
-    messageQuery.map().on<MessageType>((message) => {
+    // Assign the value to messageQuery
+    const messageQuery = traverse(gun, path);
+
+    console.log('messages for path:', path);
+
+    messageQuery.map().on<MessageSchema>((message) => {
       setMessages((prevMessages) => {
-        if (prevMessages.some((m) => m.id === message.id)) return prevMessages;
+        const parsed = MessageNode.safeParse(message);
 
-        const newMessages = [...prevMessages, message];
+        console.log('parsed', parsed, message);
 
-        return newMessages.sort(byEpoch);
+        if (prevMessages.some((m) => m.id === message.id) || !parsed.success)
+          return prevMessages;
+
+        const newMessages = [...prevMessages, message].sort(byEpoch);
+        return newMessages;
       });
     });
 
@@ -30,18 +45,14 @@ function Chat({ parent }: { parent: MessageType['id'] }) {
       // Unsubscribe when the component unmounts
       messageQuery.off();
     };
-  }, [parent]);
+  }, [path]);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!message || message === '') return;
 
-    createMessage(gun, parent, {
-      id: nanoid(),
-      text: message,
-      epoch: Date.now(),
-    });
+    createMessage(gun, path, message);
 
     setMessage('');
   };
@@ -52,7 +63,7 @@ function Chat({ parent }: { parent: MessageType['id'] }) {
         {messages.map((message) => (
           <Message key={message.id} message={message} />
         ))}
-        <li className="message">
+        <li className="message" key="in-progress">
           <i
             className="message__date"
             style={{ opacity: 0, userSelect: 'none' }}

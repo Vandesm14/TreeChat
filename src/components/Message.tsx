@@ -1,23 +1,23 @@
 import React from 'react';
-import { Message as MessageType } from '../messages';
+import { MessageSchema, traverse } from '../../shared/messages';
 import RelativeTime from './RelativeTime';
 import Chat from './Chat';
 import { gunContext } from '../gun';
 import { useAtom } from 'jotai';
-import { chatListRootAtom } from '../atoms';
+import { chatListPathAtom } from '../atoms';
+import { GunDataNode } from 'gun/types';
 
-function Message({ message }: { message: MessageType }) {
+function Message({ message }: { message: GunDataNode<MessageSchema> }) {
   const gun = React.useContext(gunContext);
   const [showReplies, setShowReplies] = React.useState(false);
   const [hasReplies, setHasReplies] = React.useState(false);
-  const [root, setRoot] = useAtom(chatListRootAtom);
+  const [root, setRoot] = useAtom(chatListPathAtom);
 
   React.useEffect(() => {
-    gun
-      .get('messages')
-      .get(message.id)
-      .once<MessageType>((message) => {
-        setHasReplies(!!message);
+    traverse(gun, ['root', message.id])
+      .map()
+      .once<MessageSchema>((replies) => {
+        setHasReplies(!!replies);
       });
   }, []);
 
@@ -33,13 +33,15 @@ function Message({ message }: { message: MessageType }) {
           hasReplies ? 'message__bullet--has-replies' : ''
         }`}
         onClick={toggleReplies}
-        onDoubleClick={() => setRoot(message.id)}
+        // onDoubleClick={() => setRoot(message.id)}
       >
         ●
       </span>
       <div className="message__box">
         <span className="message__text">{message.text}</span>
-        {showReplies ? <Chat parent={message.id} /> : null}
+        {showReplies ? (
+          <Chat path={message._['#'].split('/').slice(1)} />
+        ) : null}
       </div>
     </li>
   );

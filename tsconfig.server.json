@@ -2,9 +2,11 @@
   "compilerOptions": {
     "composite": true,
     "module": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "outDir": "build"
+    "outDir": "build",
+    "allowJs": true,
+    "strict": true
   },
-  "include": ["server"]
+  "include": ["server", "shared"]
 }

@@ -25,13 +25,9 @@ function Chat({ path }: { path: MessageSchema['id'][] }) {
     // Assign the value to messageQuery
     const messageQuery = traverse(gun, path);
 
-    console.log('messages for path:', path);
-
     messageQuery.map().on<MessageSchema>((message) => {
       setMessages((prevMessages) => {
         const parsed = MessageNode.safeParse(message);
-
-        console.log('parsed', parsed, message);
 
         if (prevMessages.some((m) => m.id === message.id) || !parsed.success)
           return prevMessages;
@@ -40,11 +36,6 @@ function Chat({ path }: { path: MessageSchema['id'][] }) {
         return newMessages;
       });
     });
-
-    return () => {
-      // Unsubscribe when the component unmounts
-      messageQuery.off();
-    };
   }, [path]);
 
   const onSubmit = (e: React.FormEvent) => {

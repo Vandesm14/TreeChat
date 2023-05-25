@@ -1,70 +1,43 @@
-import { GunDataNode, GunSchema, IGunInstance } from 'gun/types';
 import { gunContext } from '../gun';
+import { BreadcrumbProps, Icon } from '@blueprintjs/core';
+import { Breadcrumbs2 } from '@blueprintjs/popover2';
 import React from 'react';
 import { MessageSchema } from '../../shared/messages';
+import { useAtom } from 'jotai';
+import { chatListPathAtom } from '../atoms';
 
-function findParent<T extends GunSchema>(
-  gun: IGunInstance,
-  id: string
-): Promise<GunDataNode<T>> {
-  return new Promise((res) =>
-    gun
-      .get('messages')
-      .get(id)
-      .back()
-      .once<T>((val) => res(val))
-  );
-}
-
-function find<T extends GunSchema>(
-  gun: IGunInstance,
-  id: string
-): Promise<GunDataNode<T>> {
-  return new Promise((res) =>
-    gun
-      .get('messages')
-      .get(id)
-      .once<T>((val) => res(val))
-  );
-}
-
-/** Takes a message ID and returns a "/" separated path of it's location */
-async function getBackPath(gun: IGunInstance, id: string) {
-  const path = [id];
-
-  let i = 0;
-  let back = await find<MessageSchema>(gun, id);
-
-  console.log('initial id', id);
-  console.log('initial back', back);
-
-  return '...';
-
-  const MAX_ITERATIONS = 10;
-
-  while (back && i < MAX_ITERATIONS) {
-    if (i > MAX_ITERATIONS || back.id === 'root') break;
-
-    console.log({ back, backId: back.id, path, id });
-
-    if (back.id) path.push(back.id);
-    back = await findParent<MessageSchema>(gun, back.id);
-
-    i++;
-  }
-
-  return path.reverse().join('/');
-}
-
-function Path({ id }: { id: string }) {
+function Path({ path }: { path: MessageSchema['id'][] }) {
   const gun = React.useContext(gunContext);
-  const [path, setPath] = React.useState('');
+  const [breadcrumbs, setBreadcrumbs] = React.useState<BreadcrumbProps[]>([]);
+  const [pathAtom, setPathAtom] = useAtom(chatListPathAtom);
 
   React.useEffect(() => {
-    // getBackPath(gun, id).then((path) => setPath(path));
-  }, [gun, id]);
+    setBreadcrumbs(
+      path
+        .slice()
+        .map((_, i, arr) => arr.slice(0, i + 1).join('/'))
+        .map((el) => {
+          return {
+            text: el.split('/').reverse()[0],
+            icon: 'folder-close',
+            onClick: () => {
+              setPathAtom([el]);
+            },
+          };
+        })
+    );
+  }, [gun, path]);
 
-  return <span>{id}</span>;
+  return (
+    <Breadcrumbs2
+      items={breadcrumbs}
+      currentBreadcrumbRenderer={(props) => (
+        <span>
+          <Icon icon="folder-open" /> {props.text}
+        </span>
+      )}
+    />
+  );
 }
 
 export default Path;

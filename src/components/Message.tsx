@@ -33,7 +33,7 @@ function Message({ message }: { message: GunDataNode<MessageSchema> }) {
           hasReplies ? 'message__bullet--has-replies' : ''
         }`}
         onClick={toggleReplies}
-        // onDoubleClick={() => setRoot(message.id)}
+        onDoubleClick={() => setRoot((root) => [...root, message.id])}
       >
         ●
       </span>

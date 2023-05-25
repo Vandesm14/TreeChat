@@ -7,12 +7,10 @@ dayjs.extend(relativeTime);
 function RelativeTime({ date }: { date: Date }) {
   return (
     <Tooltip2
-      content={dayjs(date).format('MMMM D, YYYY h:mm A')}
+      content={dayjs(date).format('MMMM D, YYYY hh:mm A')}
       placement="bottom"
     >
-      <Popover2 content={dayjs(date).fromNow()} placement="bottom">
-        <span>{dayjs(date).format('h:mm A')}</span>
-      </Popover2>
+      <span>{dayjs(date).format('hh:mm A')}</span>
     </Tooltip2>
   );
 }

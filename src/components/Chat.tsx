@@ -14,10 +14,10 @@ function Chat({ parent }: { parent: MessageType['parent'] }) {
     // Subscribe to real-time updates
     const messageQuery = gun.get('messages');
     messageQuery.map().on((message) => {
-      if (message.parent !== parent) return;
-      if (messages.some((m) => m.id === message.id)) return;
-
       setMessages((prevMessages) => {
+        if (message.parent !== parent) return prevMessages;
+        if (prevMessages.some((m) => m.id === message.id)) return prevMessages;
+
         const newMessages = [...prevMessages, message];
 
         return newMessages.sort(byEpoch);

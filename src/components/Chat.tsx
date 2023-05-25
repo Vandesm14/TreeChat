@@ -34,6 +34,9 @@ function Chat({ parent }: { parent: MessageType['id'] }) {
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!message || message === '') return;
+
     createMessage(gun, parent, {
       id: nanoid(),
       text: message,
@@ -53,7 +56,9 @@ function Chat({ parent }: { parent: MessageType['id'] }) {
           <i
             className="message__date"
             style={{ opacity: 0, userSelect: 'none' }}
-          ></i>
+          >
+            now PM
+          </i>
           <span className={`message__bullet`}>●</span>
           <form onSubmit={onSubmit} className="chat-box__form">
             <InputGroup

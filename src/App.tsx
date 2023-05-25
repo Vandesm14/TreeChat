@@ -5,7 +5,7 @@ import { gun, gunContext } from './gun';
 function App() {
   return (
     <gunContext.Provider value={gun}>
-      <Chat />
+      <Chat parent="" />
     </gunContext.Provider>
   );
 }

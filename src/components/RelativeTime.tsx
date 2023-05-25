@@ -11,7 +11,7 @@ function RelativeTime({ date }: { date: Date }) {
       placement="bottom"
     >
       <Popover2 content={dayjs(date).fromNow()} placement="bottom">
-        <span>{dayjs(date).fromNow()}</span>
+        <span>{dayjs(date).format('h:mm A')}</span>
       </Popover2>
     </Tooltip2>
   );

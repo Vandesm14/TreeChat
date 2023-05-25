@@ -18,7 +18,7 @@ function Message({ message }: { message: MessageType }) {
       </span>
       <div className="message__box">
         <span className="message__text">{message.text}</span>
-        {showReplies && <Chat parent={message.id} />}
+        {showReplies ? <Chat parent={message.id} /> : null}
       </div>
     </li>
   );

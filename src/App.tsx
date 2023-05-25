@@ -1,7 +1,13 @@
 import { createRoot } from 'react-dom/client';
+import Chat from './components/Chat';
+import { gun, gunContext } from './gun';
 
 function App() {
-  return <h1>Hello World!</h1>;
+  return (
+    <gunContext.Provider value={gun}>
+      <Chat />
+    </gunContext.Provider>
+  );
 }
 
 createRoot(document.getElementById('root')!).render(<App />);

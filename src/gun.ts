@@ -2,6 +2,6 @@ import Gun from 'gun';
 import React from 'react';
 
 export const gun = Gun({
-  localStorage: true,
+  peers: ['http://mr.thedevbird.com:8080/gun'],
 });
 export const gunContext = React.createContext(gun);

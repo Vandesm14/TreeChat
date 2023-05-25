@@ -33,13 +33,13 @@ body {
     padding: 0 8px;
     user-select: none;
 
+    &.message__bullet--has-replies {
+      color: #ffff00;
+    }
+
     &:hover {
       cursor: pointer;
       color: #ff0000;
-    }
-
-    &.message__bullet--has-replies {
-      color: #ffff00;
     }
   }
 

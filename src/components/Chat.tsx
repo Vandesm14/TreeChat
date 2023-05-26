@@ -40,16 +40,6 @@ function Chat({ path }: { path: MessageSchema['id'][] }) {
           return prevMessages;
 
         const newMessages = [...prevMessages, message].sort(byEpoch);
-
-        // We don't need these anymore, but I'm saving them in case we do.
-        //
-        // .filter((msg) => msg.id !== path.at(-1));
-        // .filter((msg) => {
-        //   // Chop off the first and last parts of the path (first is 'messages' and last is the message ID)
-        //   const messagePath = msg._['#'].split('/').slice(1, -1).join('/');
-        //   const stringPath = path.join('/');
-        //   return messagePath === stringPath;
-        // });
         return newMessages;
       });
     });

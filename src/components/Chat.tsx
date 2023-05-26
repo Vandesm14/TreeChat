@@ -31,8 +31,6 @@ function Chat({ path }: { path: MessageSchema['id'][] }) {
     messageQuery.map().on<MessageSchema>((message, key, _, evt) => {
       event = evt;
 
-      console.log(id, path.join('/'), message);
-
       setMessages((prevMessages) => {
         const parsed = MessageNode.safeParse(message);
 

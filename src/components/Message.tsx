@@ -1,5 +1,5 @@
 import React from 'react';
-import { MessageSchema, traverse } from '../../shared/messages';
+import { MessageNode, MessageSchema, traverse } from '../../shared/messages';
 import RelativeTime from './RelativeTime';
 import Chat from './Chat';
 import { gunContext } from '../gun';
@@ -16,8 +16,9 @@ function Message({ message }: { message: GunDataNode<MessageSchema> }) {
   React.useEffect(() => {
     traverse(gun, ['root', message.id])
       .map()
-      .once<MessageSchema>((replies) => {
-        setHasReplies(!!replies);
+      .once<MessageNode>((reply) => {
+        const parsed = MessageNode.safeParse(reply);
+        setHasReplies(parsed.success);
       });
   }, []);
 

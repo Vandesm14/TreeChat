@@ -2,7 +2,7 @@ import { gunContext } from '../gun';
 import { BreadcrumbProps, Icon } from '@blueprintjs/core';
 import { Breadcrumbs2 } from '@blueprintjs/popover2';
 import React from 'react';
-import { MessageSchema } from '../../shared/messages';
+import { MessageSchema, traverse } from '../../shared/messages';
 import { useAtom } from 'jotai';
 import { chatListPathAtom } from '../atoms';
 
@@ -12,20 +12,40 @@ function Path({ path }: { path: MessageSchema['id'][] }) {
   const [pathAtom, setPathAtom] = useAtom(chatListPathAtom);
 
   React.useEffect(() => {
-    setBreadcrumbs(
-      path
-        .slice()
-        .map((_, i, arr) => arr.slice(0, i + 1).join('/'))
-        .map((el) => {
-          return {
+    const newBreadcrumbs: [BreadcrumbProps, string][] = path
+      .slice()
+      .map((_, i, arr) => arr.slice(0, i + 1).join('/'))
+      .map((el) => {
+        return [
+          {
             text: el.split('/').reverse()[0],
-            icon: 'folder-close',
+            icon: 'document',
             onClick: () => {
-              setPathAtom([el]);
+              setPathAtom(el.split('/'));
             },
-          };
-        })
-    );
+          },
+          el,
+        ];
+      });
+
+    newBreadcrumbs.slice(1).forEach(([breadcrumb, path], i) => {
+      traverse(gun, path.split('/')).once<MessageSchema>((message) => {
+        if (!message || path.length <= 1) return;
+
+        setBreadcrumbs((prev) =>
+          prev.map((el, j) =>
+            j === i + 1
+              ? {
+                  ...el,
+                  text: message.text,
+                }
+              : el
+          )
+        );
+      });
+    });
+
+    setBreadcrumbs(newBreadcrumbs.map((el) => el[0]));
   }, [gun, path]);
 
   return (

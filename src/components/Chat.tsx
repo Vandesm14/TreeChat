@@ -25,9 +25,7 @@ function Chat({ path }: { path: MessageSchema['id'][] }) {
     // Assign the value to messageQuery
     const messageQuery = traverse(gun, path);
 
-    const id = Math.random();
     let event: IGunOnEvent;
-
     messageQuery.map().on<MessageSchema>((message, key, _, evt) => {
       event = evt;
 
@@ -49,11 +47,9 @@ function Chat({ path }: { path: MessageSchema['id'][] }) {
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!message || message === '') return;
 
     createMessage(gun, path, message);
-
     setMessage('');
   };
 

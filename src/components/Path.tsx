@@ -28,7 +28,7 @@ function Path({ path }: { path: MessageSchema['id'][] }) {
         ];
       });
 
-    newBreadcrumbs.slice(1).forEach(([breadcrumb, path], i) => {
+    newBreadcrumbs.slice(1).forEach(([_, path], i) => {
       traverse(gun, path.split('/')).once<MessageSchema>((message) => {
         if (!message || path.length <= 1) return;
 

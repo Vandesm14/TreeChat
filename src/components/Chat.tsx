@@ -9,7 +9,7 @@ import {
   traverse,
 } from '../../shared/messages';
 import Message from './Message';
-import { GunDataNode } from 'gun/types';
+import { GunDataNode, IGunOnEvent } from 'gun/types';
 
 function Chat({ path }: { path: MessageSchema['id'][] }) {
   const gun = React.useContext(gunContext);
@@ -25,18 +25,39 @@ function Chat({ path }: { path: MessageSchema['id'][] }) {
     // Assign the value to messageQuery
     const messageQuery = traverse(gun, path);
 
-    messageQuery.map().on<MessageSchema>((message) => {
+    const id = Math.random();
+    let event: IGunOnEvent;
+
+    messageQuery.map().on<MessageSchema>((message, key, _, evt) => {
+      event = evt;
+
+      console.log(id, path.join('/'), message);
+
       setMessages((prevMessages) => {
         const parsed = MessageNode.safeParse(message);
 
-        if (prevMessages.some((m) => m.id === message.id) || !parsed.success)
+        if (!parsed.success || prevMessages.some((m) => m.id === message.id))
           return prevMessages;
 
         const newMessages = [...prevMessages, message].sort(byEpoch);
+
+        // We don't need these anymore, but I'm saving them in case we do.
+        //
+        // .filter((msg) => msg.id !== path.at(-1));
+        // .filter((msg) => {
+        //   // Chop off the first and last parts of the path (first is 'messages' and last is the message ID)
+        //   const messagePath = msg._['#'].split('/').slice(1, -1).join('/');
+        //   const stringPath = path.join('/');
+        //   return messagePath === stringPath;
+        // });
         return newMessages;
       });
     });
-  }, [path]);
+
+    return () => {
+      if (event) event.off();
+    };
+  }, [gun, path]);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();

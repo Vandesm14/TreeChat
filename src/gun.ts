@@ -5,10 +5,12 @@ const GunURL = `${window.location.protocol}//${window.location.hostname}:8080/gu
 
 console.log(`Connecting to ${GunURL}`);
 
-export const gun = Gun({
+export const gunConfig = {
   peers: [GunURL],
   localStorage: false,
-});
+};
+
+export const gun = Gun(gunConfig);
 
 // @ts-expect-error: I can do what I want
 window.gun = gun;
